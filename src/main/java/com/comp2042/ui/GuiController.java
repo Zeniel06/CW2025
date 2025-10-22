@@ -1,4 +1,4 @@
-package com.comp2042;
+package com.comp2042.ui;
 
 import com.comp2042.data.DownData;
 import com.comp2042.data.ViewData;
@@ -229,3 +229,4 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 }
+

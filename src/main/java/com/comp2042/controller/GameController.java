@@ -1,6 +1,5 @@
 package com.comp2042.controller;
 
-import com.comp2042.GuiController;
 import com.comp2042.data.ClearRow;
 import com.comp2042.data.DownData;
 import com.comp2042.data.ViewData;
@@ -9,6 +8,7 @@ import com.comp2042.event.InputEventListener;
 import com.comp2042.event.MoveEvent;
 import com.comp2042.model.Board;
 import com.comp2042.model.SimpleBoard;
+import com.comp2042.ui.GuiController;
 
 public class GameController implements InputEventListener {
 

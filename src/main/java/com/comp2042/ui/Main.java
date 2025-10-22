@@ -1,4 +1,4 @@
-package com.comp2042;
+package com.comp2042.ui;
 
 import com.comp2042.controller.GameController;
 import javafx.application.Application;
@@ -33,3 +33,4 @@ public class Main extends Application {
         launch(args);
     }
 }
+
