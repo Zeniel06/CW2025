@@ -1,4 +1,4 @@
-package com.comp2042.logic.bricks;
+package com.comp2042.model.bricks;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -38,3 +38,4 @@ public class RandomBrickGenerator implements BrickGenerator {
         return nextBricks.peek();
     }
 }
+

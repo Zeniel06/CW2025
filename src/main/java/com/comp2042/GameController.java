@@ -6,6 +6,8 @@ import com.comp2042.data.ViewData;
 import com.comp2042.event.EventSource;
 import com.comp2042.event.InputEventListener;
 import com.comp2042.event.MoveEvent;
+import com.comp2042.model.Board;
+import com.comp2042.model.SimpleBoard;
 
 public class GameController implements InputEventListener {
 

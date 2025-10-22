@@ -1,4 +1,4 @@
-package com.comp2042;
+package com.comp2042.model;
 
 import com.comp2042.data.ClearRow;
 import com.comp2042.data.ViewData;
@@ -27,3 +27,4 @@ public interface Board {
 
     void newGame();
 }
+
