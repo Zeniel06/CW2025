@@ -1,4 +1,4 @@
-package com.comp2042;
+package com.comp2042.data;
 
 import com.comp2042.util.MatrixOperations;
 
@@ -20,3 +20,4 @@ public final class NextShapeInfo {
         return position;
     }
 }
+

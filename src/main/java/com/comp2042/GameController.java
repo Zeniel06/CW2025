@@ -1,5 +1,9 @@
 package com.comp2042;
 
+import com.comp2042.data.ClearRow;
+import com.comp2042.data.DownData;
+import com.comp2042.data.ViewData;
+
 public class GameController implements InputEventListener {
 
     private Board board = new SimpleBoard(25, 10);

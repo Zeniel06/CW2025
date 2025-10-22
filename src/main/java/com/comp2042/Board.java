@@ -1,5 +1,8 @@
 package com.comp2042;
 
+import com.comp2042.data.ClearRow;
+import com.comp2042.data.ViewData;
+
 public interface Board {
 
     boolean moveBrickDown();

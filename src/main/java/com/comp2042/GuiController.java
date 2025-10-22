@@ -1,5 +1,7 @@
 package com.comp2042;
 
+import com.comp2042.data.DownData;
+import com.comp2042.data.ViewData;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
