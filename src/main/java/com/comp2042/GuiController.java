@@ -2,6 +2,10 @@ package com.comp2042;
 
 import com.comp2042.data.DownData;
 import com.comp2042.data.ViewData;
+import com.comp2042.event.EventSource;
+import com.comp2042.event.EventType;
+import com.comp2042.event.InputEventListener;
+import com.comp2042.event.MoveEvent;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;

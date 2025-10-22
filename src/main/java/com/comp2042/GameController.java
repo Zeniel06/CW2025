@@ -3,6 +3,9 @@ package com.comp2042;
 import com.comp2042.data.ClearRow;
 import com.comp2042.data.DownData;
 import com.comp2042.data.ViewData;
+import com.comp2042.event.EventSource;
+import com.comp2042.event.InputEventListener;
+import com.comp2042.event.MoveEvent;
 
 public class GameController implements InputEventListener {
 
