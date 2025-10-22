@@ -1,5 +1,6 @@
-package com.comp2042;
+package com.comp2042.controller;
 
+import com.comp2042.GuiController;
 import com.comp2042.data.ClearRow;
 import com.comp2042.data.DownData;
 import com.comp2042.data.ViewData;
@@ -72,3 +73,4 @@ public class GameController implements InputEventListener {
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
     }
 }
+
