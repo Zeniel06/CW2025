@@ -110,10 +110,10 @@ public class GuiController implements Initializable {
             }
         }
 
-        // Add danger line at y=11 (row where brick blocks actually appear when spawned)
-        // Bricks spawn at y=10, but their first blocks are at row 1 of the 4x4 matrix = y=11
-        // Display row is 11-2=9, positioned at the top edge of that row
-        int dangerRow = 9; // Row 11 in game matrix = row 9 in display
+        // Add danger line at y=7 (row where brick blocks actually appear when spawned)
+        // Bricks spawn at y=6, but their first blocks are at row 1 of the 4x4 matrix = y=7
+        // Display row is 7-2=5, positioned at the top edge of that row
+        int dangerRow = 5; // Row 7 in game matrix = row 5 in display
         double lineY = gamePanel.getLayoutY() + dangerRow * (BRICK_SIZE + gamePanel.getVgap());
         double lineStartX = gamePanel.getLayoutX();
         double lineEndX = lineStartX + boardMatrix[0].length * (BRICK_SIZE + gamePanel.getHgap());
