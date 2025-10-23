@@ -66,6 +66,29 @@ public class GameController implements InputEventListener {
         return board.getViewData();
     }
 
+    @Override
+    public DownData onHardDropEvent(MoveEvent event) {
+        // Drop the brick instantly to the bottom
+        int distanceDropped = board.hardDropBrick();
+        // Award 2 points per cell dropped (typical Tetris scoring)
+        board.getScore().add(distanceDropped * 2);
+        
+        // Lock the brick in place
+        board.mergeBrickToBackground();
+        // Clear any completed rows
+        ClearRow clearRow = board.clearRows();
+        if (clearRow.getLinesRemoved() > 0) {
+            board.getScore().add(clearRow.getScoreBonus());
+        }
+        // Spawn a new brick (returns true if game over)
+        if (board.createNewBrick()) {
+            viewGuiController.gameOver();
+        }
+        
+        // Update the game display
+        viewGuiController.refreshGameBackground(board.getBoardMatrix());
+        return new DownData(clearRow, board.getViewData());
+    }
 
     @Override
     public void createNewGame() {

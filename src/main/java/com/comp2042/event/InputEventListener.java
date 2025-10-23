@@ -13,6 +13,9 @@ public interface InputEventListener {
 
     ViewData onRotateEvent(MoveEvent event);
 
+    // Handles hard drop event - instantly drops brick to bottom and locks it
+    DownData onHardDropEvent(MoveEvent event);
+
     void createNewGame();
 }
 

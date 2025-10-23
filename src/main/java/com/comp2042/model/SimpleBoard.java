@@ -86,6 +86,19 @@ public class SimpleBoard implements Board {
     }
 
     @Override
+    public int hardDropBrick() {
+        // Store the starting position
+        int initialY = (int) currentOffset.getY();
+        // Calculate where the brick will land (same as ghost brick position)
+        int ghostY = calculateGhostPosition();
+        // Instantly move the brick to the landing position
+        currentOffset.setLocation(currentOffset.getX(), ghostY);
+        // Return the distance dropped for scoring purposes
+        int distanceDropped = ghostY - initialY;
+        return distanceDropped;
+    }
+
+    @Override
     public boolean createNewBrick() {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);

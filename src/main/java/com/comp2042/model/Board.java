@@ -13,6 +13,9 @@ public interface Board {
 
     boolean rotateLeftBrick();
 
+    // Instantly drops the brick to the bottom position and returns the distance dropped
+    int hardDropBrick();
+
     boolean createNewBrick();
 
     int[][] getBoardMatrix();
