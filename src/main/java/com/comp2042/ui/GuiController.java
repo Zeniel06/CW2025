@@ -24,6 +24,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 
@@ -52,8 +53,14 @@ public class GuiController implements Initializable {
 
     private Rectangle[][] rectangles;
 
+    // Ghost brick preview - shows where the block will land
+    private GridPane ghostBrickPanel;
+
+    private Rectangle[][] ghostRectangles;
+
     private Timeline timeLine;
 
+    // Danger line - marks the game over threshold
     private Line dangerLine;
 
     private final BooleanProperty isPause = new SimpleBooleanProperty();
@@ -139,6 +146,31 @@ public class GuiController implements Initializable {
         brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
         brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
 
+        // Initialize ghost brick panel - shows outline of where the block will land
+        ghostBrickPanel = new GridPane();
+        ghostBrickPanel.setVgap(1);
+        ghostBrickPanel.setHgap(1);
+        ghostRectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
+        for (int i = 0; i < brick.getBrickData().length; i++) {
+            for (int j = 0; j < brick.getBrickData()[i].length; j++) {
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rectangle.setFill(Color.TRANSPARENT);  // Transparent fill for outline only
+                rectangle.setStroke(Color.LIGHTGRAY);
+                rectangle.setStrokeWidth(2);
+                rectangle.setStrokeType(StrokeType.INSIDE);  // Prevents overlap with adjacent blocks
+                rectangle.setArcHeight(9);  // Match the rounded corners of actual blocks
+                rectangle.setArcWidth(9);
+                rectangle.setOpacity(0.6);
+                ghostRectangles[i][j] = rectangle;
+                ghostBrickPanel.add(rectangle, j, i);
+            }
+        }
+        // Position ghost at the calculated landing position
+        ghostBrickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * ghostBrickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
+        ghostBrickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * ghostBrickPanel.getHgap() + brick.getGhostYPosition() * BRICK_SIZE);
+        
+        // Add ghost brick panel to the parent pane
+        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(ghostBrickPanel);
 
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(400),
@@ -190,6 +222,24 @@ public class GuiController implements Initializable {
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
+                }
+            }
+            
+            // Update ghost brick position when the block moves/rotates
+            ghostBrickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * ghostBrickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
+            ghostBrickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * ghostBrickPanel.getHgap() + brick.getGhostYPosition() * BRICK_SIZE);
+            // Update ghost outline to match current brick shape
+            for (int i = 0; i < brick.getBrickData().length; i++) {
+                for (int j = 0; j < brick.getBrickData()[i].length; j++) {
+                    if (brick.getBrickData()[i][j] != 0) {
+                        ghostRectangles[i][j].setStroke(Color.LIGHTGRAY);
+                        ghostRectangles[i][j].setStrokeWidth(2);
+                        ghostRectangles[i][j].setStrokeType(StrokeType.INSIDE);
+                        ghostRectangles[i][j].setArcHeight(9);
+                        ghostRectangles[i][j].setArcWidth(9);
+                    } else {
+                        ghostRectangles[i][j].setStroke(Color.TRANSPARENT);  // Hide empty cells
+                    }
                 }
             }
         }

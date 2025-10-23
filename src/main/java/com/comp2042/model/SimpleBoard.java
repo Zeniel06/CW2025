@@ -100,7 +100,21 @@ public class SimpleBoard implements Board {
 
     @Override
     public ViewData getViewData() {
-        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), brickGenerator.getNextBrick().getShapeMatrix().get(0));
+        int ghostY = calculateGhostPosition();  // Calculate where the brick will land for ghost preview
+        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), brickGenerator.getNextBrick().getShapeMatrix().get(0), ghostY);
+    }
+
+    // Calculates the Y position where the current brick would land if dropped straight down
+    private int calculateGhostPosition() {
+        int ghostY = (int) currentOffset.getY();
+        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        
+        // Keep moving down until we hit something
+        while (!MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), ghostY + 1)) {
+            ghostY++;
+        }
+        
+        return ghostY;
     }
 
     @Override
