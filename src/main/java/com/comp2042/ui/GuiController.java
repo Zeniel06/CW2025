@@ -22,6 +22,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
@@ -52,6 +53,8 @@ public class GuiController implements Initializable {
     private Rectangle[][] rectangles;
 
     private Timeline timeLine;
+
+    private Line dangerLine;
 
     private final BooleanProperty isPause = new SimpleBooleanProperty();
 
@@ -106,6 +109,23 @@ public class GuiController implements Initializable {
                 gamePanel.add(rectangle, j, i - 2);
             }
         }
+
+        // Add danger line at y=11 (row where brick blocks actually appear when spawned)
+        // Bricks spawn at y=10, but their first blocks are at row 1 of the 4x4 matrix = y=11
+        // Display row is 11-2=9, positioned at the top edge of that row
+        int dangerRow = 9; // Row 11 in game matrix = row 9 in display
+        double lineY = gamePanel.getLayoutY() + dangerRow * (BRICK_SIZE + gamePanel.getVgap());
+        double lineStartX = gamePanel.getLayoutX();
+        double lineEndX = lineStartX + boardMatrix[0].length * (BRICK_SIZE + gamePanel.getHgap());
+        
+        dangerLine = new Line(lineStartX, lineY, lineEndX, lineY);
+        dangerLine.setStroke(Color.RED);
+        dangerLine.setStrokeWidth(2);
+        dangerLine.setOpacity(0.7);
+        dangerLine.getStrokeDashArray().addAll(10.0, 5.0);
+        
+        // Add danger line to the parent pane
+        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(dangerLine);
 
         rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
         for (int i = 0; i < brick.getBrickData().length; i++) {
