@@ -102,8 +102,11 @@ public class SimpleBoard implements Board {
     public boolean createNewBrick() {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
-        currentOffset = new Point(4, 6);
-        return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
+        // Spawn above the visible area (y=0 is hidden, top of visible area is y=2)
+        // This allows blocks to fall into view and potentially reach the top
+        currentOffset = new Point(4, 0);
+        // Return false since game over is now checked via isDangerLineReached()
+        return false;
     }
 
     @Override
@@ -154,6 +157,18 @@ public class SimpleBoard implements Board {
         currentGameMatrix = new int[width][height];
         score.reset();
         createNewBrick();
+    }
+
+    @Override
+    public boolean isDangerLineReached() {
+        // Check if any blocks exist at row 2 (top of visible play area)
+        // Game over if blocks reach the top
+        for (int col = 0; col < height; col++) {
+            if (currentGameMatrix[2][col] != 0) {
+                return true;  // Game over - blocks have reached the top
+            }
+        }
+        return false;
     }
 }
 

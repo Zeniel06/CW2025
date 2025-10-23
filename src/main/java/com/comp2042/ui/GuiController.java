@@ -22,7 +22,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
@@ -59,9 +58,6 @@ public class GuiController implements Initializable {
     private Rectangle[][] ghostRectangles;
 
     private Timeline timeLine;
-
-    // Danger line - marks the game over threshold
-    private Line dangerLine;
 
     private final BooleanProperty isPause = new SimpleBooleanProperty();
 
@@ -122,23 +118,6 @@ public class GuiController implements Initializable {
             }
         }
 
-        // Add danger line at y=7 (row where brick blocks actually appear when spawned)
-        // Bricks spawn at y=6, but their first blocks are at row 1 of the 4x4 matrix = y=7
-        // Display row is 7-2=5, positioned at the top edge of that row
-        int dangerRow = 5; // Row 7 in game matrix = row 5 in display
-        double lineY = gamePanel.getLayoutY() + dangerRow * (BRICK_SIZE + gamePanel.getVgap());
-        double lineStartX = gamePanel.getLayoutX();
-        double lineEndX = lineStartX + boardMatrix[0].length * (BRICK_SIZE + gamePanel.getHgap());
-        
-        dangerLine = new Line(lineStartX, lineY, lineEndX, lineY);
-        dangerLine.setStroke(Color.RED);
-        dangerLine.setStrokeWidth(2);
-        dangerLine.setOpacity(0.7);
-        dangerLine.getStrokeDashArray().addAll(10.0, 5.0);
-        
-        // Add danger line to the parent pane
-        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(dangerLine);
-
         rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
         for (int i = 0; i < brick.getBrickData().length; i++) {
             for (int j = 0; j < brick.getBrickData()[i].length; j++) {
@@ -177,8 +156,9 @@ public class GuiController implements Initializable {
         // Add ghost brick panel to the parent pane
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(ghostBrickPanel);
 
+        // Set fall speed - higher value = slower fall (600ms per drop)
         timeLine = new Timeline(new KeyFrame(
-                Duration.millis(400),
+                Duration.millis(600),
                 ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);

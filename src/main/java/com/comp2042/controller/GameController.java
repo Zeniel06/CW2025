@@ -29,14 +29,24 @@ public class GameController implements InputEventListener {
         boolean canMove = board.moveBrickDown();
         ClearRow clearRow = null;
         if (!canMove) {
+            // Lock the brick in place
             board.mergeBrickToBackground();
+            
+            // Clear any completed rows first
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
                 board.getScore().add(clearRow.getScoreBonus());
             }
-            if (board.createNewBrick()) {
+            
+            // Check if blocks have reached the top AFTER clearing (game over condition)
+            if (board.isDangerLineReached()) {
                 viewGuiController.gameOver();
+                viewGuiController.refreshGameBackground(board.getBoardMatrix());
+                return new DownData(clearRow, board.getViewData());
             }
+            
+            // Spawn a new brick
+            board.createNewBrick();
 
             viewGuiController.refreshGameBackground(board.getBoardMatrix());
 
@@ -75,15 +85,22 @@ public class GameController implements InputEventListener {
         
         // Lock the brick in place
         board.mergeBrickToBackground();
-        // Clear any completed rows
+        
+        // Clear any completed rows first
         ClearRow clearRow = board.clearRows();
         if (clearRow.getLinesRemoved() > 0) {
             board.getScore().add(clearRow.getScoreBonus());
         }
-        // Spawn a new brick (returns true if game over)
-        if (board.createNewBrick()) {
+        
+        // Check if blocks have reached the top AFTER clearing (game over condition)
+        if (board.isDangerLineReached()) {
             viewGuiController.gameOver();
+            viewGuiController.refreshGameBackground(board.getBoardMatrix());
+            return new DownData(clearRow, board.getViewData());
         }
+        
+        // Spawn a new brick
+        board.createNewBrick();
         
         // Update the game display
         viewGuiController.refreshGameBackground(board.getBoardMatrix());

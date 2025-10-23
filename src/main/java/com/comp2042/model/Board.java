@@ -29,5 +29,8 @@ public interface Board {
     Score getScore();
 
     void newGame();
+
+    // Checks if any blocks have reached the top of the visible play area (game over condition)
+    boolean isDangerLineReached();
 }
 
