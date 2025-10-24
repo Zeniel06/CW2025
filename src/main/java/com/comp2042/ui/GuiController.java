@@ -20,11 +20,13 @@ import javafx.scene.effect.Reflection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -54,8 +56,12 @@ public class GuiController implements Initializable {
 
     // Ghost brick preview - shows where the block will land
     private GridPane ghostBrickPanel;
-
     private Rectangle[][] ghostRectangles;
+
+    // Hold piece feature - UI components to display held piece
+    private GridPane heldBrickPanel;      // Panel containing the held brick visualization
+    private Rectangle[][] heldRectangles; // 4x4 grid to display held brick shape
+    private VBox heldBrickContainer;      // Container with "HOLD" label and panel
 
     private Timeline timeLine;
 
@@ -91,6 +97,11 @@ public class GuiController implements Initializable {
                     // Space bar triggers hard drop instantly 
                     if (keyEvent.getCode() == KeyCode.SPACE) {
                         hardDrop(new MoveEvent(EventType.HARD_DROP, EventSource.USER));
+                        keyEvent.consume();
+                    }
+                    // Shift key triggers hold/swap piece (standard Tetris hold mechanic)
+                    if (keyEvent.getCode() == KeyCode.SHIFT) {
+                        holdPiece(new MoveEvent(EventType.HOLD, EventSource.USER));
                         keyEvent.consume();
                     }
                 }
@@ -155,6 +166,42 @@ public class GuiController implements Initializable {
         
         // Add ghost brick panel to the parent pane
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(ghostBrickPanel);
+
+        // === HOLD PIECE FEATURE - Initialize UI panel to display held piece ===
+        heldBrickPanel = new GridPane();
+        heldBrickPanel.setVgap(1);
+        heldBrickPanel.setHgap(1);
+        // Style: semi-transparent dark background with blue border
+        heldBrickPanel.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7); -fx-border-color: rgba(100, 150, 200, 0.8); -fx-border-width: 2; -fx-padding: 5;");
+        
+        // Create 4x4 grid of rectangles (max Tetris piece size)
+        heldRectangles = new Rectangle[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rectangle.setFill(Color.TRANSPARENT);
+                heldRectangles[i][j] = rectangle;
+                heldBrickPanel.add(rectangle, j, i);
+            }
+        }
+        
+        // Create "HOLD" label above the panel
+        Text holdLabel = new Text("HOLD");
+        holdLabel.setFill(Color.WHITE);
+        holdLabel.setFont(Font.font("Arial", 14));
+        holdLabel.setStyle("-fx-font-weight: bold;");
+        
+        // Combine label and panel in vertical container
+        heldBrickContainer = new VBox(5);
+        heldBrickContainer.getChildren().addAll(holdLabel, heldBrickPanel);
+        heldBrickContainer.setStyle("-fx-alignment: center;");
+        
+        // Position to the right of game panel (gamePanel width ≈ 10 cells * 21px = 210px)
+        heldBrickContainer.setLayoutX(gamePanel.getLayoutX() + 220);
+        heldBrickContainer.setLayoutY(gamePanel.getLayoutY() + 10);
+        
+        // Add to parent pane (makes it visible on screen)
+        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(heldBrickContainer);
 
         // Set fall speed - higher value = slower fall (600ms per drop)
         timeLine = new Timeline(new KeyFrame(
@@ -227,6 +274,9 @@ public class GuiController implements Initializable {
                     }
                 }
             }
+            
+            // Update held brick display panel with current held piece
+            updateHeldBrickDisplay(brick.getHeldBrickData());
         }
     }
 
@@ -270,6 +320,37 @@ public class GuiController implements Initializable {
             refreshBrick(downData.getViewData());
         }
         gamePanel.requestFocus();
+    }
+
+    // Handles the hold piece action (stores/swaps current piece with held piece)
+    // Triggered when user presses Shift key
+    private void holdPiece(MoveEvent event) {
+        if (isPause.getValue() == Boolean.FALSE) {
+            ViewData viewData = eventListener.onHoldEvent(event);
+            refreshBrick(viewData); // Updates display with new brick state
+        }
+        gamePanel.requestFocus();
+    }
+
+    // Updates the held brick display panel with the currently held piece
+    private void updateHeldBrickDisplay(int[][] heldBrickData) {
+        // Clear all rectangles first (reset to transparent)
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                heldRectangles[i][j].setFill(Color.TRANSPARENT);
+                heldRectangles[i][j].setArcHeight(0);
+                heldRectangles[i][j].setArcWidth(0);
+            }
+        }
+        
+        // If there's a held brick, render it in the panel
+        if (heldBrickData != null) {
+            for (int i = 0; i < heldBrickData.length && i < 4; i++) {
+                for (int j = 0; j < heldBrickData[i].length && j < 4; j++) {
+                    setRectangleData(heldBrickData[i][j], heldRectangles[i][j]);
+                }
+            }
+        }
     }
 
     public void setEventListener(InputEventListener eventListener) {

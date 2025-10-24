@@ -19,6 +19,11 @@ public class SimpleBoard implements Board {
     private int[][] currentGameMatrix;
     private Point currentOffset;
     private final Score score;
+    
+    // Hold piece feature - stores the brick being held
+    private Brick heldBrick;
+    // Prevents holding/swapping multiple times per piece (standard Tetris rule)
+    private boolean canHold;
 
     public SimpleBoard(int width, int height) {
         this.width = width;
@@ -105,6 +110,8 @@ public class SimpleBoard implements Board {
         // Spawn above the visible area (y=0 is hidden, top of visible area is y=2)
         // This allows blocks to fall into view and potentially reach the top
         currentOffset = new Point(4, 0);
+        // Reset hold ability for the new piece (one hold/swap allowed per piece)
+        canHold = true;
         // Return false since game over is now checked via isDangerLineReached()
         return false;
     }
@@ -117,7 +124,8 @@ public class SimpleBoard implements Board {
     @Override
     public ViewData getViewData() {
         int ghostY = calculateGhostPosition();  // Calculate where the brick will land for ghost preview
-        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), brickGenerator.getNextBrick().getShapeMatrix().get(0), ghostY);
+        // Include held brick shape in view data so UI can display it
+        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), brickGenerator.getNextBrick().getShapeMatrix().get(0), ghostY, getHeldBrickShape());
     }
 
     // Calculates the Y position where the current brick would land if dropped straight down
@@ -156,6 +164,9 @@ public class SimpleBoard implements Board {
     public void newGame() {
         currentGameMatrix = new int[width][height];
         score.reset();
+        // Reset hold piece state for new game
+        heldBrick = null;
+        canHold = true;
         createNewBrick();
     }
 
@@ -169,6 +180,42 @@ public class SimpleBoard implements Board {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean holdCurrentBrick() {
+        // Check if player already used hold/swap for this piece
+        if (!canHold) {
+            return false; // Already held/swapped - must wait until piece locks
+        }
+        
+        // Mark hold as used before performing operation
+        canHold = false;
+        Brick currentBrick = brickRotator.getBrick();
+        
+        if (heldBrick == null) {
+            // First time holding - store current piece and spawn a new random piece
+            heldBrick = currentBrick;
+            createNewBrick(); // This will set canHold = true for the new piece
+        } else {
+            // Swap current piece with the held piece
+            Brick temp = heldBrick;
+            heldBrick = currentBrick;
+            brickRotator.setBrick(temp);
+            currentOffset = new Point(4, 0); // Reset position to spawn location
+            // canHold stays false - can't swap again until this piece locks in place
+        }
+        
+        return true;
+    }
+
+    @Override
+    public int[][] getHeldBrickShape() {
+        // Return null if no piece is held, otherwise return its shape matrix
+        if (heldBrick == null) {
+            return null;
+        }
+        return heldBrick.getShapeMatrix().get(0);
     }
 }
 

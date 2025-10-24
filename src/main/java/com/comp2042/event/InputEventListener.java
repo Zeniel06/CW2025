@@ -16,6 +16,11 @@ public interface InputEventListener {
     // Handles hard drop event - instantly drops brick to bottom and locks it
     DownData onHardDropEvent(MoveEvent event);
 
+    // Hold piece feature - stores current piece and swaps with held piece
+    // First press: holds piece and spawns new one
+    // Subsequent press: swaps current with held piece (once per piece)
+    ViewData onHoldEvent(MoveEvent event);
+
     void createNewGame();
 }
 

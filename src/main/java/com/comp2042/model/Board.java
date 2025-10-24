@@ -32,5 +32,12 @@ public interface Board {
 
     // Checks if any blocks have reached the top of the visible play area (game over condition)
     boolean isDangerLineReached();
+    
+    // Hold piece functionality - stores current piece and swaps with held piece
+    // Returns true if hold was successful, false if already held this turn
+    boolean holdCurrentBrick();
+    
+    // Returns the shape matrix of the currently held brick (null if no brick is held)
+    int[][] getHeldBrickShape();
 }
 

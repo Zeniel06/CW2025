@@ -27,6 +27,10 @@ public class BrickRotator {
         currentShape = 0;
     }
 
+    // Returns the current brick object (needed for hold piece feature)
+    public Brick getBrick() {
+        return brick;
+    }
 
 }
 

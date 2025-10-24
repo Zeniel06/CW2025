@@ -108,6 +108,13 @@ public class GameController implements InputEventListener {
     }
 
     @Override
+    public ViewData onHoldEvent(MoveEvent event) {
+        // Handle hold piece action - stores/swaps current piece with held piece
+        board.holdCurrentBrick();
+        return board.getViewData();
+    }
+
+    @Override
     public void createNewGame() {
         board.newGame();
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
