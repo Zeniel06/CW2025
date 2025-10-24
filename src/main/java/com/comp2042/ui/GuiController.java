@@ -62,6 +62,11 @@ public class GuiController implements Initializable {
     private GridPane heldBrickPanel;      // Panel containing the held brick visualization
     private Rectangle[][] heldRectangles; // 4x4 grid to display held brick shape
     private VBox heldBrickContainer;      // Container with "HOLD" label and panel
+    
+    // Next piece preview - UI components to display upcoming piece
+    private GridPane nextBrickPanel;      // Panel containing the next brick visualization
+    private Rectangle[][] nextRectangles; // 4x4 grid to display next brick shape
+    private VBox nextBrickContainer;      // Container with "NEXT" label and panel
 
     private Timeline timeLine;
 
@@ -203,6 +208,42 @@ public class GuiController implements Initializable {
         // Add to parent pane (makes it visible on screen)
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(heldBrickContainer);
 
+        // === NEXT PIECE PREVIEW - Initialize UI panel to display upcoming piece ===
+        nextBrickPanel = new GridPane();
+        nextBrickPanel.setVgap(1);
+        nextBrickPanel.setHgap(1);
+        // Style: same as hold panel for consistency
+        nextBrickPanel.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7); -fx-border-color: rgba(100, 150, 200, 0.8); -fx-border-width: 2; -fx-padding: 5;");
+        
+        // Create 4x4 grid of rectangles (max Tetris piece size)
+        nextRectangles = new Rectangle[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rectangle.setFill(Color.TRANSPARENT);
+                nextRectangles[i][j] = rectangle;
+                nextBrickPanel.add(rectangle, j, i);
+            }
+        }
+        
+        // Create "NEXT" label above the panel
+        Text nextLabel = new Text("NEXT");
+        nextLabel.setFill(Color.WHITE);
+        nextLabel.setFont(Font.font("Arial", 14));
+        nextLabel.setStyle("-fx-font-weight: bold;");
+        
+        // Combine label and panel in vertical container
+        nextBrickContainer = new VBox(5);
+        nextBrickContainer.getChildren().addAll(nextLabel, nextBrickPanel);
+        nextBrickContainer.setStyle("-fx-alignment: center;");
+        
+        // Position below the hold panel (hold panel height + gap)
+        nextBrickContainer.setLayoutX(heldBrickContainer.getLayoutX());
+        nextBrickContainer.setLayoutY(heldBrickContainer.getLayoutY() + 130); // Position below hold panel
+        
+        // Add to parent pane (makes it visible on screen)
+        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(nextBrickContainer);
+
         // Set fall speed - higher value = slower fall (600ms per drop)
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(600),
@@ -277,6 +318,9 @@ public class GuiController implements Initializable {
             
             // Update held brick display panel with current held piece
             updateHeldBrickDisplay(brick.getHeldBrickData());
+            
+            // Update next brick preview panel with upcoming piece
+            updateNextBrickDisplay(brick.getNextBrickData());
         }
     }
 
@@ -348,6 +392,27 @@ public class GuiController implements Initializable {
             for (int i = 0; i < heldBrickData.length && i < 4; i++) {
                 for (int j = 0; j < heldBrickData[i].length && j < 4; j++) {
                     setRectangleData(heldBrickData[i][j], heldRectangles[i][j]);
+                }
+            }
+        }
+    }
+
+    // Updates the next brick preview panel with the upcoming piece
+    private void updateNextBrickDisplay(int[][] nextBrickData) {
+        // Clear all rectangles first (reset to transparent)
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                nextRectangles[i][j].setFill(Color.TRANSPARENT);
+                nextRectangles[i][j].setArcHeight(0);
+                nextRectangles[i][j].setArcWidth(0);
+            }
+        }
+        
+        // Render the next brick in the panel (there's always a next brick)
+        if (nextBrickData != null) {
+            for (int i = 0; i < nextBrickData.length && i < 4; i++) {
+                for (int j = 0; j < nextBrickData[i].length && j < 4; j++) {
+                    setRectangleData(nextBrickData[i][j], nextRectangles[i][j]);
                 }
             }
         }
