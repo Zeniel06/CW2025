@@ -131,10 +131,13 @@ public class SimpleBoard implements Board {
     // Calculates the Y position where the current brick would land if dropped straight down
     private int calculateGhostPosition() {
         int ghostY = (int) currentOffset.getY();
+        int ghostX = (int) currentOffset.getX();
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        int[][] currentShape = brickRotator.getCurrentShape();
         
-        // Keep moving down until we hit something
-        while (!MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), ghostY + 1)) {
+        // Keep incrementing Y until the NEXT position would collide
+        // This matches exactly how moveBrickDown works
+        while (!MatrixOperations.intersect(currentMatrix, currentShape, ghostX, ghostY + 1)) {
             ghostY++;
         }
         

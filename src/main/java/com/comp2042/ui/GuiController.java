@@ -129,6 +129,10 @@ public class GuiController implements Initializable {
             for (int j = 0; j < boardMatrix[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
                 rectangle.setFill(Color.TRANSPARENT);
+                // Add subtle grid lines so falling blocks are visible against the background
+                rectangle.setStroke(Color.rgb(30, 45, 80, 0.4));
+                rectangle.setStrokeWidth(0.5);
+                rectangle.setStrokeType(StrokeType.INSIDE);  // Keep stroke inside to maintain consistent cell size
                 displayMatrix[i][j] = rectangle;
                 gamePanel.add(rectangle, j, i - 2);
             }
@@ -138,13 +142,15 @@ public class GuiController implements Initializable {
         for (int i = 0; i < brick.getBrickData().length; i++) {
             for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
+                setRectangleData(brick.getBrickData()[i][j], rectangle);
                 rectangles[i][j] = rectangle;
                 brickPanel.add(rectangle, j, i);
             }
         }
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-        brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
+        brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + 1));
+        // Bring the falling brick panel to front so it's visible above the game board
+        brickPanel.toFront();
 
         // Initialize ghost brick panel - shows outline of where the block will land
         ghostBrickPanel = new GridPane();
@@ -166,8 +172,8 @@ public class GuiController implements Initializable {
             }
         }
         // Position ghost at the calculated landing position
-        ghostBrickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * ghostBrickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-        ghostBrickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * ghostBrickPanel.getHgap() + brick.getGhostYPosition() * BRICK_SIZE);
+        ghostBrickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
+        ghostBrickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * (BRICK_SIZE + 1));
         
         // Add ghost brick panel to the parent pane
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(ghostBrickPanel);
@@ -290,8 +296,10 @@ public class GuiController implements Initializable {
 
     private void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
-            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
+            brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + 1));
+            // Ensure the falling brick stays visible on top
+            brickPanel.toFront();
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
@@ -299,19 +307,15 @@ public class GuiController implements Initializable {
             }
             
             // Update ghost brick position when the block moves/rotates
-            ghostBrickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * ghostBrickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            ghostBrickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * ghostBrickPanel.getHgap() + brick.getGhostYPosition() * BRICK_SIZE);
+            ghostBrickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
+            ghostBrickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * (BRICK_SIZE + 1));
             // Update ghost outline to match current brick shape
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     if (brick.getBrickData()[i][j] != 0) {
                         ghostRectangles[i][j].setStroke(Color.LIGHTGRAY);
-                        ghostRectangles[i][j].setStrokeWidth(2);
-                        ghostRectangles[i][j].setStrokeType(StrokeType.INSIDE);
-                        ghostRectangles[i][j].setArcHeight(9);
-                        ghostRectangles[i][j].setArcWidth(9);
                     } else {
-                        ghostRectangles[i][j].setStroke(Color.TRANSPARENT);  // Hide empty cells
+                        ghostRectangles[i][j].setStroke(Color.TRANSPARENT);
                     }
                 }
             }
@@ -336,6 +340,15 @@ public class GuiController implements Initializable {
         rectangle.setFill(getFillColor(color));
         rectangle.setArcHeight(9);
         rectangle.setArcWidth(9);
+        
+        // Make sure colored blocks are visible with a slight stroke
+        if (color != 0) {
+            rectangle.setStroke(Color.rgb(255, 255, 255, 0.3));
+            rectangle.setStrokeWidth(0.5);
+            rectangle.setStrokeType(StrokeType.INSIDE);  // Keep stroke inside for consistent alignment
+        } else {
+            rectangle.setStroke(null);
+        }
     }
 
     private void moveDown(MoveEvent event) {
