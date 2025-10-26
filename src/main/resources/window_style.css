@@ -12,7 +12,7 @@
     -fx-border-color: #00CED1;
     -fx-border-width: 8px;
     -fx-border-radius: 8px;
-    -fx-background-color: #1a2850;
+    -fx-background-color: linear-gradient(to top, #080c20 0%, #1e3055 100%);
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 15, 0.5, 0, 5);
 }
 

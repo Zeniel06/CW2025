@@ -128,9 +128,9 @@ public class GuiController implements Initializable {
         for (int i = 2; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(Color.TRANSPARENT);
-                // Add subtle grid lines so falling blocks are visible against the background
-                rectangle.setStroke(Color.rgb(30, 45, 80, 0.4));
+                // Initialize empty cells with filled gridline appearance
+                rectangle.setFill(Color.rgb(25, 40, 70, 0.4));
+                rectangle.setStroke(Color.rgb(45, 65, 100, 0.5));
                 rectangle.setStrokeWidth(0.5);
                 rectangle.setStrokeType(StrokeType.INSIDE);  // Keep stroke inside to maintain consistent cell size
                 displayMatrix[i][j] = rectangle;
@@ -142,7 +142,7 @@ public class GuiController implements Initializable {
         for (int i = 0; i < brick.getBrickData().length; i++) {
             for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                setRectangleData(brick.getBrickData()[i][j], rectangle);
+                setBrickPreviewData(brick.getBrickData()[i][j], rectangle);
                 rectangles[i][j] = rectangle;
                 brickPanel.add(rectangle, j, i);
             }
@@ -302,7 +302,7 @@ public class GuiController implements Initializable {
             brickPanel.toFront();
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
-                    setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
+                    setBrickPreviewData(brick.getBrickData()[i][j], rectangles[i][j]);
                 }
             }
             
@@ -336,17 +336,43 @@ public class GuiController implements Initializable {
         }
     }
 
+    // Sets rectangle appearance for game board cells (adds filled gridlines to empty cells)
     private void setRectangleData(int color, Rectangle rectangle) {
         rectangle.setFill(getFillColor(color));
-        rectangle.setArcHeight(9);
-        rectangle.setArcWidth(9);
         
-        // Make sure colored blocks are visible with a slight stroke
         if (color != 0) {
+            // Colored blocks with rounded corners
+            rectangle.setArcHeight(9);
+            rectangle.setArcWidth(9);
             rectangle.setStroke(Color.rgb(255, 255, 255, 0.3));
             rectangle.setStrokeWidth(0.5);
-            rectangle.setStrokeType(StrokeType.INSIDE);  // Keep stroke inside for consistent alignment
+            rectangle.setStrokeType(StrokeType.INSIDE);
         } else {
+            // Empty cells on game board get filled gridline appearance
+            rectangle.setFill(Color.rgb(25, 40, 70, 0.4));
+            rectangle.setArcHeight(0);
+            rectangle.setArcWidth(0);
+            rectangle.setStroke(Color.rgb(45, 65, 100, 0.5));
+            rectangle.setStrokeWidth(0.5);
+            rectangle.setStrokeType(StrokeType.INSIDE);
+        }
+    }
+
+    // Sets rectangle appearance for brick preview panels (no gridlines on empty cells)
+    private void setBrickPreviewData(int color, Rectangle rectangle) {
+        if (color != 0) {
+            // Colored blocks with rounded corners
+            rectangle.setFill(getFillColor(color));
+            rectangle.setArcHeight(9);
+            rectangle.setArcWidth(9);
+            rectangle.setStroke(Color.rgb(255, 255, 255, 0.3));
+            rectangle.setStrokeWidth(0.5);
+            rectangle.setStrokeType(StrokeType.INSIDE);
+        } else {
+            // Empty cells in preview panels are transparent (no gridlines)
+            rectangle.setFill(Color.TRANSPARENT);
+            rectangle.setArcHeight(0);
+            rectangle.setArcWidth(0);
             rectangle.setStroke(null);
         }
     }
@@ -404,7 +430,7 @@ public class GuiController implements Initializable {
         if (heldBrickData != null) {
             for (int i = 0; i < heldBrickData.length && i < 4; i++) {
                 for (int j = 0; j < heldBrickData[i].length && j < 4; j++) {
-                    setRectangleData(heldBrickData[i][j], heldRectangles[i][j]);
+                    setBrickPreviewData(heldBrickData[i][j], heldRectangles[i][j]);
                 }
             }
         }
@@ -425,7 +451,7 @@ public class GuiController implements Initializable {
         if (nextBrickData != null) {
             for (int i = 0; i < nextBrickData.length && i < 4; i++) {
                 for (int j = 0; j < nextBrickData[i].length && j < 4; j++) {
-                    setRectangleData(nextBrickData[i][j], nextRectangles[i][j]);
+                    setBrickPreviewData(nextBrickData[i][j], nextRectangles[i][j]);
                 }
             }
         }
