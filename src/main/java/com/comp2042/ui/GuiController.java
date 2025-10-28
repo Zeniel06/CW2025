@@ -69,6 +69,9 @@ public class GuiController implements Initializable {
     private Rectangle[][] nextRectangles; // 4x4 grid to display next brick shape
     private VBox nextBrickContainer;      // Container with "NEXT" label and panel
 
+    // Scoreboard - displays the current game score
+    private Text scoreText;
+
     private Timeline timeLine;
 
     private final BooleanProperty isPause = new SimpleBooleanProperty();
@@ -260,6 +263,40 @@ public class GuiController implements Initializable {
         // Add restart button to parent pane
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(restartButton);
 
+        // === SCOREBOARD - Display score below restart button ===
+        VBox scoreContainer = new VBox(5);
+        
+        // "SCORE" label
+        Text scoreLabel = new Text("SCORE");
+        scoreLabel.setFill(Color.WHITE);
+        scoreLabel.setFont(Font.font("Arial", 14));
+        scoreLabel.setStyle("-fx-font-weight: bold;");
+        
+        // Score number display (starts at 0)
+        scoreText = new Text("0");
+        scoreText.setFill(Color.rgb(255, 215, 0)); // Gold color
+        scoreText.setFont(Font.font("Digital-7", 32));
+        scoreText.setStyle("-fx-font-weight: bold;");
+        
+        // Panel container for score number
+        StackPane scorePanel = new StackPane(scoreText);
+        scorePanel.setStyle(
+            "-fx-background-color: rgba(50, 50, 50, 0.7);" +
+            "-fx-border-color: rgba(100, 150, 200, 0.8);" +
+            "-fx-border-width: 2;" +
+            "-fx-padding: 15;" +
+            "-fx-min-width: 100;"
+        );
+        
+        // Combine label and panel, position below restart button
+        scoreContainer.getChildren().addAll(scoreLabel, scorePanel);
+        scoreContainer.setStyle("-fx-alignment: center;");
+        scoreContainer.setLayoutX(nextBrickContainer.getLayoutX());
+        scoreContainer.setLayoutY(restartButton.getLayoutY() + 80);
+        
+        // Add scoreboard to screen
+        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(scoreContainer);
+
         // Set fall speed - higher value = slower fall (600ms per drop)
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(600),
@@ -425,19 +462,19 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 
-    // Updates the held brick display panel with the currently held piece
+    // Updates the held brick display panel
     private void updateHeldBrickDisplay(int[][] heldBrickData) {
-        // Clear all rectangles first (reset to transparent)
+        // Clear all rectangles first
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 heldRectangles[i][j].setFill(Color.TRANSPARENT);
-                heldRectangles[i][j].setStroke(null);  // Clear the stroke/outline
+                heldRectangles[i][j].setStroke(null);
                 heldRectangles[i][j].setArcHeight(0);
                 heldRectangles[i][j].setArcWidth(0);
             }
         }
         
-        // If there's a held brick, render it in the panel
+        // Render the held brick if one exists
         if (heldBrickData != null) {
             for (int i = 0; i < heldBrickData.length && i < 4; i++) {
                 for (int j = 0; j < heldBrickData[i].length && j < 4; j++) {
@@ -473,6 +510,8 @@ public class GuiController implements Initializable {
     }
 
     public void bindScore(IntegerProperty integerProperty) {
+        // Connect score display to game score - updates automatically
+        scoreText.textProperty().bind(integerProperty.asString());
     }
 
     // Creates a restart button with a circular arrow icon in a circular container
@@ -560,9 +599,10 @@ public class GuiController implements Initializable {
         timeLine.stop();
         gameOverPanel.setVisible(false);
         
-        // Clear hold panel before starting new game
+        // Clear hold panel for new game
         updateHeldBrickDisplay(null);
         
+        // Reset game state (also resets score to 0)
         eventListener.createNewGame();
         gamePanel.requestFocus();
         timeLine.play();
