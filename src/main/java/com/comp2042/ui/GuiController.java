@@ -384,7 +384,7 @@ public class GuiController implements Initializable {
     }
 
 
-    private void refreshBrick(ViewData brick) {
+    public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
             brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + 1));
@@ -618,8 +618,12 @@ public class GuiController implements Initializable {
         isGameOver.setValue(Boolean.FALSE);
         
         // Reset game state (also resets score/level/lines to initial values)
-        // The level reset will trigger updateFallSpeed via the listener, which will restart the timeline
         eventListener.createNewGame();
+        
+        // Explicitly restart the timeline to ensure blocks start falling
+        // (needed in case level was already 1, which wouldn't trigger the listener)
+        updateFallSpeed(1);
+        
         gamePanel.requestFocus();
     }
 
