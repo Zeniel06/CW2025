@@ -16,7 +16,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
 import javafx.scene.effect.Reflection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -254,16 +253,7 @@ public class GuiController implements Initializable {
         // Add to parent pane (makes it visible on screen)
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(nextBrickContainer);
 
-        // === RESTART BUTTON - Add restart button with icon below next panel ===
-        Button restartButton = createRestartButton();
-        restartButton.setLayoutX(nextBrickContainer.getLayoutX() + 20);
-        restartButton.setLayoutY(nextBrickContainer.getLayoutY() + 150); // Position below next panel
-        restartButton.setOnAction(e -> newGame(null));
-        
-        // Add restart button to parent pane
-        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(restartButton);
-
-        // === SCOREBOARD - Display score below restart button ===
+        // === SCOREBOARD - Display score below next panel ===
         VBox scoreContainer = new VBox(5);
         
         // "SCORE" label
@@ -288,11 +278,11 @@ public class GuiController implements Initializable {
             "-fx-min-width: 100;"
         );
         
-        // Combine label and panel, position below restart button
+        // Combine label and panel, position below next panel
         scoreContainer.getChildren().addAll(scoreLabel, scorePanel);
         scoreContainer.setStyle("-fx-alignment: center;");
         scoreContainer.setLayoutX(nextBrickContainer.getLayoutX());
-        scoreContainer.setLayoutY(restartButton.getLayoutY() + 80);
+        scoreContainer.setLayoutY(nextBrickContainer.getLayoutY() + 150);
         
         // Add scoreboard to screen
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(scoreContainer);
@@ -512,81 +502,6 @@ public class GuiController implements Initializable {
     public void bindScore(IntegerProperty integerProperty) {
         // Connect score display to game score - updates automatically
         scoreText.textProperty().bind(integerProperty.asString());
-    }
-
-    // Creates a restart button with a circular arrow icon in a circular container
-    private Button createRestartButton() {
-        Button button = new Button();
-        
-        // Create circular arrow icon using SVG-like path (larger scale)
-        Path arrow = new Path();
-        
-        // Draw circular arrow path (clockwise arrow) - scaled up
-        MoveTo moveTo = new MoveTo(15, 3);
-        ArcTo arcTo = new ArcTo();
-        arcTo.setX(27);
-        arcTo.setY(15);
-        arcTo.setRadiusX(12);
-        arcTo.setRadiusY(12);
-        arcTo.setSweepFlag(true);
-        arcTo.setLargeArcFlag(true);
-        
-        // Arrow head
-        LineTo line1 = new LineTo(27, 6);
-        MoveTo move2 = new MoveTo(27, 15);
-        LineTo line2 = new LineTo(33, 15);
-        
-        arrow.getElements().addAll(moveTo, arcTo, line1, move2, line2);
-        arrow.setStroke(Color.rgb(200, 230, 255));
-        arrow.setStrokeWidth(3.5);
-        arrow.setStrokeLineCap(StrokeLineCap.ROUND);
-        arrow.setStrokeLineJoin(StrokeLineJoin.ROUND);
-        arrow.setFill(Color.TRANSPARENT);
-        
-        // Create a container for the icon
-        StackPane iconContainer = new StackPane(arrow);
-        iconContainer.setPrefSize(50, 50);
-        
-        button.setGraphic(iconContainer);
-        button.setPrefSize(60, 60);
-        button.setStyle(
-            "-fx-background-color: rgba(45, 85, 90, 0.6);" +
-            "-fx-border-color: rgba(100, 200, 220, 0.5);" +
-            "-fx-border-width: 2;" +
-            "-fx-border-radius: 30;" +
-            "-fx-background-radius: 30;" +
-            "-fx-cursor: hand;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0.3, 0, 2);"
-        );
-        
-        // Hover effect - brighten and make more opaque
-        button.setOnMouseEntered(e -> {
-            arrow.setStroke(Color.rgb(220, 250, 255));
-            button.setStyle(
-                "-fx-background-color: rgba(60, 110, 120, 0.8);" +
-                "-fx-border-color: rgba(120, 220, 240, 0.8);" +
-                "-fx-border-width: 2;" +
-                "-fx-border-radius: 30;" +
-                "-fx-background-radius: 30;" +
-                "-fx-cursor: hand;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 6, 0.4, 0, 3);"
-            );
-        });
-        
-        button.setOnMouseExited(e -> {
-            arrow.setStroke(Color.rgb(200, 230, 255));
-            button.setStyle(
-                "-fx-background-color: rgba(45, 85, 90, 0.6);" +
-                "-fx-border-color: rgba(100, 200, 220, 0.5);" +
-                "-fx-border-width: 2;" +
-                "-fx-border-radius: 30;" +
-                "-fx-background-radius: 30;" +
-                "-fx-cursor: hand;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0.3, 0, 2);"
-            );
-        });
-        
-        return button;
     }
 
     public void gameOver() {
