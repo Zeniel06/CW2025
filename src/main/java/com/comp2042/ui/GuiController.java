@@ -68,8 +68,11 @@ public class GuiController implements Initializable {
     private Rectangle[][] nextRectangles; // 4x4 grid to display next brick shape
     private VBox nextBrickContainer;      // Container with "NEXT" label and panel
 
-    // Scoreboard - displays the current game score
+    // Game statistics - displays score, level, and lines cleared
     private Text scoreText;
+    private Text levelText;
+    private Text linesText;
+    private IntegerProperty levelProperty;
 
     private Timeline timeLine;
 
@@ -186,7 +189,7 @@ public class GuiController implements Initializable {
         heldBrickPanel.setVgap(1);
         heldBrickPanel.setHgap(1);
         // Style: semi-transparent dark background with blue border
-        heldBrickPanel.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7); -fx-border-color: rgba(100, 150, 200, 0.8); -fx-border-width: 2; -fx-padding: 5;");
+        heldBrickPanel.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7); -fx-border-color: rgba(100, 150, 200, 0.8); -fx-border-width: 2; -fx-padding: 5; -fx-pref-width: 97;");
         
         // Create 4x4 grid of rectangles (max Tetris piece size)
         heldRectangles = new Rectangle[4][4];
@@ -210,8 +213,8 @@ public class GuiController implements Initializable {
         heldBrickContainer.getChildren().addAll(holdLabel, heldBrickPanel);
         heldBrickContainer.setStyle("-fx-alignment: center;");
         
-        // Position to the right of game panel (gamePanel width ≈ 10 cells * 21px = 210px)
-        heldBrickContainer.setLayoutX(gamePanel.getLayoutX() + 220);
+        // Position to the right of the game board
+        heldBrickContainer.setLayoutX(gamePanel.getLayoutX() + 240);
         heldBrickContainer.setLayoutY(gamePanel.getLayoutY() + 10);
         
         // Add to parent pane (makes it visible on screen)
@@ -222,7 +225,7 @@ public class GuiController implements Initializable {
         nextBrickPanel.setVgap(1);
         nextBrickPanel.setHgap(1);
         // Style: same as hold panel for consistency
-        nextBrickPanel.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7); -fx-border-color: rgba(100, 150, 200, 0.8); -fx-border-width: 2; -fx-padding: 5;");
+        nextBrickPanel.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7); -fx-border-color: rgba(100, 150, 200, 0.8); -fx-border-width: 2; -fx-padding: 5; -fx-pref-width: 97;");
         
         // Create 4x4 grid of rectangles (max Tetris piece size)
         nextRectangles = new Rectangle[4][4];
@@ -253,47 +256,97 @@ public class GuiController implements Initializable {
         // Add to parent pane (makes it visible on screen)
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(nextBrickContainer);
 
-        // === SCOREBOARD - Display score below next panel ===
-        VBox scoreContainer = new VBox(5);
+        // === STATISTICS PANEL - Display score, level, and lines (compact & thin design) ===
+        VBox statsContainer = new VBox(1);
         
-        // "SCORE" label
+        // --- SCORE Section ---
         Text scoreLabel = new Text("SCORE");
         scoreLabel.setFill(Color.WHITE);
-        scoreLabel.setFont(Font.font("Arial", 14));
+        scoreLabel.setFont(Font.font("Arial", 11));
         scoreLabel.setStyle("-fx-font-weight: bold;");
         
-        // Score number display (starts at 0)
         scoreText = new Text("0");
-        scoreText.setFill(Color.rgb(255, 215, 0)); // Gold color
-        scoreText.setFont(Font.font("Digital-7", 32));
+        scoreText.setFill(Color.WHITE);
+        scoreText.setFont(Font.font("Digital-7", 18));
         scoreText.setStyle("-fx-font-weight: bold;");
         
-        // Panel container for score number
         StackPane scorePanel = new StackPane(scoreText);
         scorePanel.setStyle(
+            "-fx-background-color: rgba(30, 30, 30, 0.9);" +
+            "-fx-padding: 5 5 5 5;" +
+            "-fx-pref-width: 77;"
+        );
+        
+        VBox scoreSection = new VBox(1);
+        scoreSection.getChildren().addAll(scoreLabel, scorePanel);
+        scoreSection.setStyle("-fx-alignment: center;");
+        
+        // --- LEVEL Section ---
+        Text levelLabel = new Text("LEVEL");
+        levelLabel.setFill(Color.WHITE);
+        levelLabel.setFont(Font.font("Arial", 11));
+        levelLabel.setStyle("-fx-font-weight: bold;");
+        
+        levelText = new Text("1");
+        levelText.setFill(Color.WHITE);
+        levelText.setFont(Font.font("Digital-7", 18));
+        levelText.setStyle("-fx-font-weight: bold;");
+        
+        StackPane levelPanel = new StackPane(levelText);
+        levelPanel.setStyle(
+            "-fx-background-color: rgba(30, 30, 30, 0.9);" +
+            "-fx-padding: 5 5 5 5;" +
+            "-fx-pref-width: 77;"
+        );
+        
+        VBox levelSection = new VBox(1);
+        levelSection.getChildren().addAll(levelLabel, levelPanel);
+        levelSection.setStyle("-fx-alignment: center;");
+        
+        // --- LINES Section ---
+        Text linesLabel = new Text("LINES");
+        linesLabel.setFill(Color.WHITE);
+        linesLabel.setFont(Font.font("Arial", 11));
+        linesLabel.setStyle("-fx-font-weight: bold;");
+        
+        linesText = new Text("0");
+        linesText.setFill(Color.WHITE);
+        linesText.setFont(Font.font("Digital-7", 18));
+        linesText.setStyle("-fx-font-weight: bold;");
+        
+        StackPane linesPanel = new StackPane(linesText);
+        linesPanel.setStyle(
+            "-fx-background-color: rgba(30, 30, 30, 0.9);" +
+            "-fx-padding: 5 5 5 5;" +
+            "-fx-pref-width: 77;"
+        );
+        
+        VBox linesSection = new VBox(1);
+        linesSection.getChildren().addAll(linesLabel, linesPanel);
+        linesSection.setStyle("-fx-alignment: center;");
+        
+        // Combine all sections - thin and compact
+        statsContainer.getChildren().addAll(scoreSection, levelSection, linesSection);
+        statsContainer.setStyle(
+            "-fx-alignment: center;" +
             "-fx-background-color: rgba(50, 50, 50, 0.7);" +
             "-fx-border-color: rgba(100, 150, 200, 0.8);" +
             "-fx-border-width: 2;" +
-            "-fx-padding: 15;" +
-            "-fx-min-width: 100;"
+            "-fx-padding: 8;" +
+            "-fx-spacing: 4;" +
+            "-fx-pref-width: 97;"
         );
         
-        // Combine label and panel, position below next panel
-        scoreContainer.getChildren().addAll(scoreLabel, scorePanel);
-        scoreContainer.setStyle("-fx-alignment: center;");
-        scoreContainer.setLayoutX(nextBrickContainer.getLayoutX());
-        scoreContainer.setLayoutY(nextBrickContainer.getLayoutY() + 150);
+        // Position below next panel - aligned properly
+        statsContainer.setLayoutX(nextBrickContainer.getLayoutX());
+        statsContainer.setLayoutY(nextBrickContainer.getLayoutY() + 150);
         
-        // Add scoreboard to screen
-        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(scoreContainer);
+        // Add statistics panel to screen
+        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(statsContainer);
 
-        // Set fall speed - higher value = slower fall (600ms per drop)
-        timeLine = new Timeline(new KeyFrame(
-                Duration.millis(600),
-                ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
-        ));
-        timeLine.setCycleCount(Timeline.INDEFINITE);
-        timeLine.play();
+        // Set initial fall speed - higher value = slower fall (600ms per drop at level 1)
+        // Timeline will be created and started in updateFallSpeed
+        updateFallSpeed(1);
     }
 
     private Paint getFillColor(int i) {
@@ -504,6 +557,49 @@ public class GuiController implements Initializable {
         scoreText.textProperty().bind(integerProperty.asString());
     }
 
+    public void bindLevel(IntegerProperty integerProperty) {
+        // Connect level display to game level - updates automatically
+        levelText.textProperty().bind(integerProperty.asString());
+        // Store level property and listen for changes to update fall speed
+        this.levelProperty = integerProperty;
+        integerProperty.addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                updateFallSpeed(newVal.intValue());
+            }
+        });
+    }
+    
+    // Updates the fall speed based on level (faster as level increases)
+    private void updateFallSpeed(int level) {
+        // Formula: 600ms - (level - 1) * 100ms, minimum 50ms
+        // Level 1: 600ms, Level 2: 500ms, Level 3: 400ms, Level 4: 300ms, etc.
+        int fallDuration = Math.max(50, 600 - (level - 1) * 100);
+        
+        // Stop current timeline if it exists and is playing
+        boolean wasPlaying = (timeLine != null && timeLine.getStatus() == javafx.animation.Animation.Status.RUNNING);
+        if (timeLine != null) {
+            timeLine.stop();
+        }
+        
+        // Create new timeline with updated speed
+        timeLine = new Timeline(new KeyFrame(
+                Duration.millis(fallDuration),
+                ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
+        ));
+        timeLine.setCycleCount(Timeline.INDEFINITE);
+        
+        // Resume playing if game is not paused or over
+        // This handles both cases: resuming after level change, and initial game start
+        if (!isPause.getValue() && !isGameOver.getValue()) {
+            timeLine.play();
+        }
+    }
+
+    public void bindLines(IntegerProperty integerProperty) {
+        // Connect lines display to game lines - updates automatically
+        linesText.textProperty().bind(integerProperty.asString());
+    }
+
     public void gameOver() {
         timeLine.stop();
         gameOverPanel.setVisible(true);
@@ -517,12 +613,14 @@ public class GuiController implements Initializable {
         // Clear hold panel for new game
         updateHeldBrickDisplay(null);
         
-        // Reset game state (also resets score to 0)
-        eventListener.createNewGame();
-        gamePanel.requestFocus();
-        timeLine.play();
+        // Set game state flags before resetting score/level (so listener can start timeline)
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
+        
+        // Reset game state (also resets score/level/lines to initial values)
+        // The level reset will trigger updateFallSpeed via the listener, which will restart the timeline
+        eventListener.createNewGame();
+        gamePanel.requestFocus();
     }
 
     public void pauseGame(ActionEvent actionEvent) {

@@ -22,6 +22,8 @@ public class GameController implements InputEventListener {
         viewGuiController.setEventListener(this);
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
         viewGuiController.bindScore(board.getScore().scoreProperty());
+        viewGuiController.bindLevel(board.getScore().levelProperty());
+        viewGuiController.bindLines(board.getScore().linesProperty());
     }
 
     @Override
@@ -36,6 +38,7 @@ public class GameController implements InputEventListener {
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
                 board.getScore().add(clearRow.getScoreBonus());
+                board.getScore().addLines(clearRow.getLinesRemoved());
             }
             
             // Check if blocks have reached the top AFTER clearing (game over condition)
@@ -90,6 +93,7 @@ public class GameController implements InputEventListener {
         ClearRow clearRow = board.clearRows();
         if (clearRow.getLinesRemoved() > 0) {
             board.getScore().add(clearRow.getScoreBonus());
+            board.getScore().addLines(clearRow.getLinesRemoved());
         }
         
         // Check if blocks have reached the top AFTER clearing (game over condition)
