@@ -23,7 +23,7 @@ public class Main extends Application {
 
         primaryStage.setTitle("TetrisJFX");
         // To increase window size
-        Scene scene = new Scene(root, 400, 550);
+        Scene scene = new Scene(root, 400, 500);
         primaryStage.setScene(scene);
         primaryStage.setResizable(false); // Keep consistent aspect ratio
         primaryStage.show();

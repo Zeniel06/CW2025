@@ -72,3 +72,35 @@
     -fx-fill: yellow;
     -fx-text-fill: yellow;
 }
+
+.pausedStyle {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 48;
+    -fx-text-fill: #00CED1;
+    -fx-font-weight: bold;
+}
+
+.pauseButton {
+    -fx-font-family: "Arial";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+    linear-gradient(#020b02, #3a3a3a),
+    linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+    linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
+    linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
+    -fx-background-insets: 0, 1, 4, 5, 6;
+    -fx-background-radius: 9, 8, 5, 4, 3;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.2), 1, 0.0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.pauseButton:hover {
+    -fx-background-color: linear-gradient(#787878 0%, #333733 25%, #474847 75%, #858585 100%),
+    linear-gradient(#121b12, #4a4a4a),
+    linear-gradient(#adaead 0%, #7b7a7b 20%, #444544 80%, #343434 100%),
+    linear-gradient(#9a9a9a 0%, #7b7a7b 20%, #444544 80%, #363636 100%),
+    linear-gradient(#878787 0%, #707070 50%, #606260 51%, #3a3b3a 100%);
+}

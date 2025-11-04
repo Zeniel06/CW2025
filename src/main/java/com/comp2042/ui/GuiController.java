@@ -48,6 +48,8 @@ public class GuiController implements Initializable {
     @FXML
     private GameOverPanel gameOverPanel;
 
+    private PauseMenuPanel pauseMenuPanel;
+
     private Rectangle[][] displayMatrix;
 
     private InputEventListener eventListener;
@@ -116,12 +118,26 @@ public class GuiController implements Initializable {
                         keyEvent.consume();
                     }
                 }
+                // Escape key toggles pause menu
+                if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                    if (isGameOver.getValue() == Boolean.FALSE) {
+                        togglePause();
+                        keyEvent.consume();
+                    }
+                }
                 if (keyEvent.getCode() == KeyCode.N) {
                     newGame(null);
                 }
             }
         });
         gameOverPanel.setVisible(false);
+        
+        // Initialize pause menu panel
+        pauseMenuPanel = new PauseMenuPanel();
+        pauseMenuPanel.setVisible(false);
+        
+        // Set up resume button action
+        pauseMenuPanel.getResumeButton().setOnAction(event -> resumeGame());
 
         final Reflection reflection = new Reflection();
         reflection.setFraction(0.8);
@@ -343,6 +359,13 @@ public class GuiController implements Initializable {
         
         // Add statistics panel to screen
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(statsContainer);
+        
+        // Add pause menu panel to the scene (centered on screen)
+        // Scene size is 400x550, pause menu is 300x180
+        pauseMenuPanel.setLayoutX(50);  // (400 - 300) / 2 = 50
+        pauseMenuPanel.setLayoutY(185); // (550 - 180) / 2 = 185
+        ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(pauseMenuPanel);
+        pauseMenuPanel.toFront(); // Ensure it appears on top
 
         // Set initial fall speed - higher value = slower fall (600ms per drop at level 1)
         // Timeline will be created and started in updateFallSpeed
@@ -628,6 +651,28 @@ public class GuiController implements Initializable {
     }
 
     public void pauseGame(ActionEvent actionEvent) {
+        gamePanel.requestFocus();
+    }
+    
+    // Toggle pause state (called when Escape is pressed)
+    private void togglePause() {
+        if (isPause.getValue() == Boolean.FALSE) {
+            // Pause the game
+            isPause.setValue(Boolean.TRUE);
+            timeLine.pause();
+            pauseMenuPanel.setVisible(true);
+            pauseMenuPanel.toFront();
+        } else {
+            // Resume the game
+            resumeGame();
+        }
+    }
+    
+    // Resume the game from pause
+    private void resumeGame() {
+        isPause.setValue(Boolean.FALSE);
+        pauseMenuPanel.setVisible(false);
+        timeLine.play();
         gamePanel.requestFocus();
     }
 }
