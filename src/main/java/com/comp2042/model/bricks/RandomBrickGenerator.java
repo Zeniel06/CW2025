@@ -21,14 +21,14 @@ public class RandomBrickGenerator implements BrickGenerator {
         brickList.add(new SBrick());
         brickList.add(new TBrick());
         brickList.add(new ZBrick());
-        nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
-        nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
+        nextBricks.add(getRandomBrick());
+        nextBricks.add(getRandomBrick());
     }
 
     @Override
     public Brick getBrick() {
         if (nextBricks.size() <= 1) {
-            nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
+            nextBricks.add(getRandomBrick());
         }
         return nextBricks.poll();
     }
@@ -36,6 +36,13 @@ public class RandomBrickGenerator implements BrickGenerator {
     @Override
     public Brick getNextBrick() {
         return nextBricks.peek();
+    }
+
+    /**
+     * Helper method to get a random brick from the brick list
+     */
+    private Brick getRandomBrick() {
+        return brickList.get(ThreadLocalRandom.current().nextInt(brickList.size()));
     }
 }
 
