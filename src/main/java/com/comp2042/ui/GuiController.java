@@ -170,7 +170,7 @@ public class GuiController implements Initializable {
         mainMenuPanel.setVisible(false);
         
         // Set up Start Game button action
-        mainMenuPanel.getStartGameButton().setOnAction(event -> startZenMode());
+        mainMenuPanel.getStartGameButton().setOnAction(event -> startGame());
         
         // Add menus to scene - use Platform.runLater to ensure scene graph is ready
         javafx.application.Platform.runLater(() -> {
@@ -707,9 +707,6 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 
-    public void pauseGame(ActionEvent actionEvent) {
-        gamePanel.requestFocus();
-    }
     
     // Toggle pause state (called when Escape is pressed)
     private void togglePause() {
@@ -740,37 +737,17 @@ public class GuiController implements Initializable {
             timeLine.stop();
         }
         
-        // Hide game panels
+        // Hide all game-related panels
         pauseMenuPanel.setVisible(false);
         gameOverPanel.setVisible(false);
         
         // Hide game elements if initialized
         if (isGameInitialized) {
-            gamePanel.setVisible(false);
-            gamePanel.setManaged(false);
-            brickPanel.setVisible(false);
-            brickPanel.setManaged(false);
-            ghostBrickPanel.setVisible(false);
-            heldBrickContainer.setVisible(false);
-            nextBrickContainer.setVisible(false);
-            // Hide stats container
-            if (statsContainer != null) {
-                statsContainer.setVisible(false);
-            }
-            // Hide game board BorderPane (cyan border)
-            if (gameBoard != null) {
-                gameBoard.setVisible(false);
-                gameBoard.setManaged(false);
-            }
-            groupNotification.setVisible(false);
-            groupNotification.setManaged(false);
+            setGameElementsVisible(false);
         }
         
         // Set background to default dark (no gradient)
-        if (gamePanel.getParent() != null && gamePanel.getParent().getParent() != null) {
-            javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) gamePanel.getParent().getParent();
-            rootPane.setStyle("-fx-background-color: #1e1e1e;");
-        }
+        setRootPaneStyle("-fx-background-color: #1e1e1e;");
         
         // Show main menu
         mainMenuPanel.setVisible(true);
@@ -786,46 +763,59 @@ public class GuiController implements Initializable {
         showMainMenu();
     }
     
-    // Start Zen mode
-    private void startZenMode() {
+    // Start the game
+    private void startGame() {
         // Hide main menu
         mainMenuPanel.setVisible(false);
         
         // Restore gradient background when starting game
-        if (gamePanel.getParent() != null && gamePanel.getParent().getParent() != null) {
-            javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) gamePanel.getParent().getParent();
-            rootPane.setStyle("-fx-background-color: linear-gradient(to bottom, #2d6a65 0%, #081918 100%);");
-        }
+        setRootPaneStyle("-fx-background-color: linear-gradient(to bottom, #2d6a65 0%, #081918 100%);");
         
         // Initialize game if first time
         if (!isGameInitialized) {
             ((com.comp2042.controller.GameController) eventListener).initializeGame();
         }
         
-        // Show all game elements (works for both first time and returning)
+        // Show all game elements
         if (isGameInitialized) {
-            gamePanel.setVisible(true);
-            gamePanel.setManaged(true);
-            brickPanel.setVisible(true);
-            brickPanel.setManaged(true);
-            ghostBrickPanel.setVisible(true);
-            heldBrickContainer.setVisible(true);
-            nextBrickContainer.setVisible(true);
-            // Show stats container
-            if (statsContainer != null) {
-                statsContainer.setVisible(true);
-            }
-            // Show game board BorderPane
-            if (gameBoard != null) {
-                gameBoard.setVisible(true);
-                gameBoard.setManaged(true);
-            }
-            groupNotification.setVisible(true);
-            groupNotification.setManaged(true);
+            setGameElementsVisible(true);
         }
         
         // Start new game
         newGame(null);
+    }
+
+    /**
+     * Helper method to show/hide all game elements at once
+     */
+    private void setGameElementsVisible(boolean visible) {
+        gamePanel.setVisible(visible);
+        gamePanel.setManaged(visible);
+        brickPanel.setVisible(visible);
+        brickPanel.setManaged(visible);
+        ghostBrickPanel.setVisible(visible);
+        heldBrickContainer.setVisible(visible);
+        nextBrickContainer.setVisible(visible);
+        groupNotification.setVisible(visible);
+        groupNotification.setManaged(visible);
+        
+        if (statsContainer != null) {
+            statsContainer.setVisible(visible);
+        }
+        if (gameBoard != null) {
+            gameBoard.setVisible(visible);
+            gameBoard.setManaged(visible);
+        }
+    }
+
+    /**
+     * Helper method to set the root pane style
+     */
+    private void setRootPaneStyle(String style) {
+        if (gamePanel.getParent() != null && gamePanel.getParent().getParent() != null) {
+            javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) gamePanel.getParent().getParent();
+            rootPane.setStyle(style);
+        }
     }
 }
 
