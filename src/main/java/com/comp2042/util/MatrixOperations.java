@@ -30,22 +30,17 @@ public class MatrixOperations {
     }
 
     private static boolean checkOutOfBound(int[][] matrix, int targetX, int targetY) {
-        boolean returnValue = true;
-        if (targetX >= 0 && targetY < matrix.length && targetX < matrix[targetY].length) {
-            returnValue = false;
-        }
-        return returnValue;
+        return targetX < 0 || targetY >= matrix.length || targetX >= matrix[targetY].length;
     }
 
     public static int[][] copy(int[][] original) {
-        int[][] myInt = new int[original.length][];
+        int[][] copy = new int[original.length][];
         for (int i = 0; i < original.length; i++) {
-            int[] aMatrix = original[i];
-            int aLength = aMatrix.length;
-            myInt[i] = new int[aLength];
-            System.arraycopy(aMatrix, 0, myInt[i], 0, aLength);
+            int rowLength = original[i].length;
+            copy[i] = new int[rowLength];
+            System.arraycopy(original[i], 0, copy[i], 0, rowLength);
         }
-        return myInt;
+        return copy;
     }
 
     public static int[][] merge(int[][] filledFields, int[][] brick, int x, int y) {
