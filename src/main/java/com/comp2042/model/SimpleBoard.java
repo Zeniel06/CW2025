@@ -36,45 +36,42 @@ public class SimpleBoard implements Board {
 
     @Override
     public boolean moveBrickDown() {
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
-        Point p = new Point(currentOffset);
-        p.translate(0, 1);
-        boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
-        if (conflict) {
-            return false;
-        } else {
-            currentOffset = p;
-            return true;
-        }
+        return tryMoveBrick(0, 1);
     }
-
 
     @Override
     public boolean moveBrickLeft() {
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
-        Point p = new Point(currentOffset);
-        p.translate(-1, 0);
-        boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
-        if (conflict) {
-            return false;
-        } else {
-            currentOffset = p;
-            return true;
-        }
+        return tryMoveBrick(-1, 0);
     }
 
     @Override
     public boolean moveBrickRight() {
+        return tryMoveBrick(1, 0);
+    }
+
+    /**
+     * Helper method to attempt moving the brick by the specified offset.
+     * @param dx horizontal offset
+     * @param dy vertical offset
+     * @return true if move was successful, false if blocked
+     */
+    private boolean tryMoveBrick(int dx, int dy) {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
-        Point p = new Point(currentOffset);
-        p.translate(1, 0);
-        boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
-        if (conflict) {
-            return false;
-        } else {
-            currentOffset = p;
+        Point newPosition = new Point(currentOffset);
+        newPosition.translate(dx, dy);
+        
+        boolean conflict = MatrixOperations.intersect(
+            currentMatrix, 
+            brickRotator.getCurrentShape(), 
+            (int) newPosition.getX(), 
+            (int) newPosition.getY()
+        );
+        
+        if (!conflict) {
+            currentOffset = newPosition;
             return true;
         }
+        return false;
     }
 
     @Override
@@ -99,8 +96,7 @@ public class SimpleBoard implements Board {
         // Instantly move the brick to the landing position
         currentOffset.setLocation(currentOffset.getX(), ghostY);
         // Return the distance dropped for scoring purposes
-        int distanceDropped = ghostY - initialY;
-        return distanceDropped;
+        return ghostY - initialY;
     }
 
     @Override
@@ -108,12 +104,10 @@ public class SimpleBoard implements Board {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
         // Spawn above the visible area (y=0 is hidden, top of visible area is y=2)
-        // This allows blocks to fall into view and potentially reach the top
         currentOffset = new Point(4, 0);
         // Reset hold ability for the new piece (one hold/swap allowed per piece)
         canHold = true;
-        // Return false since game over is now checked via isDangerLineReached()
-        return false;
+        return false; // Return value maintained for interface compatibility
     }
 
     @Override
