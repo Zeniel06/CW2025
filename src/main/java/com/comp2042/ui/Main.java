@@ -8,31 +8,25 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.ResourceBundle;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
         URL location = getClass().getClassLoader().getResource("gameLayout.fxml");
-        ResourceBundle resources = null;
-        FXMLLoader fxmlLoader = new FXMLLoader(location, resources);
+        FXMLLoader fxmlLoader = new FXMLLoader(location);
         Parent root = fxmlLoader.load();
-        GuiController c = fxmlLoader.getController();
+        GuiController controller = fxmlLoader.getController();
 
         primaryStage.setTitle("TetrisJFX");
-        // To increase window size
-        Scene scene = new Scene(root, 400, 500);
+        Scene scene = new Scene(root, 400, 500); //resize window
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false); // Keep consistent aspect ratio
+        primaryStage.setResizable(false);
         primaryStage.show();
-        new GameController(c);
         
-        // Show main menu on startup
-        c.showMainMenu();
+        new GameController(controller);
+        controller.showMainMenu();
     }
-
 
     public static void main(String[] args) {
         launch(args);
