@@ -28,6 +28,9 @@ public class Main extends Application {
         primaryStage.setResizable(false); // Keep consistent aspect ratio
         primaryStage.show();
         new GameController(c);
+        
+        // Show main menu on startup
+        c.showMainMenu();
     }
 
 

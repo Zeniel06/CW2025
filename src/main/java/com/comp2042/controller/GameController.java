@@ -18,8 +18,13 @@ public class GameController implements InputEventListener {
 
     public GameController(GuiController c) {
         viewGuiController = c;
-        board.createNewBrick();
         viewGuiController.setEventListener(this);
+        // Don't initialize game yet - wait for user to select a mode
+    }
+    
+    // Initialize the game when user selects a mode
+    public void initializeGame() {
+        board.createNewBrick();
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
         viewGuiController.bindScore(board.getScore().scoreProperty());
         viewGuiController.bindLevel(board.getScore().levelProperty());

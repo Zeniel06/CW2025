@@ -104,3 +104,39 @@
     linear-gradient(#9a9a9a 0%, #7b7a7b 20%, #444544 80%, #363636 100%),
     linear-gradient(#878787 0%, #707070 50%, #606260 51%, #3a3b3a 100%);
 }
+
+.mainMenuTitle {
+    -fx-font-family: "Let's go Digital";
+    -fx-font-size: 64px;
+    -fx-text-fill: #00CED1;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 206, 209, 0.8), 10, 0.5, 0, 3);
+}
+
+.mainMenuSubtitle {
+    -fx-font-family: "Arial";
+    -fx-font-size: 20px;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.5), 3, 0.3, 0, 1);
+}
+
+.gameModeButton {
+    -fx-font-family: "Arial";
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(#00CED1 0%, #008B8B 100%);
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 8;
+    -fx-padding: 15 35 15 35;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 206, 209, 0.8), 12, 0.6, 0, 3);
+    -fx-cursor: hand;
+}
+
+.gameModeButton:hover {
+    -fx-background-color: linear-gradient(#20DED1 0%, #109B9B 100%);
+    -fx-effect: dropshadow(gaussian, rgba(0, 206, 209, 1.0), 15, 0.7, 0, 4);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
