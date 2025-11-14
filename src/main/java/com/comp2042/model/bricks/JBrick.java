@@ -5,6 +5,7 @@ import com.comp2042.util.MatrixOperations;
 import java.util.ArrayList;
 import java.util.List;
 
+// J-shaped brick with 4 rotation states
 final class JBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();

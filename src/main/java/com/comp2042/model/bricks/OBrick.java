@@ -5,6 +5,7 @@ import com.comp2042.util.MatrixOperations;
 import java.util.ArrayList;
 import java.util.List;
 
+// sqaure brick with 1 rotation state
 final class OBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();

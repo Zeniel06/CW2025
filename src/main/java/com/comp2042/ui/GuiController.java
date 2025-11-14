@@ -33,6 +33,10 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Main GUI controller for the Tetris game view.
+ * Manages all visual elements, user input handling, animations, and game state rendering.
+ */
 public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 20;
@@ -91,6 +95,12 @@ public class GuiController implements Initializable {
 
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
 
+    /**
+     * Initializes the GUI controller and sets up all UI components and event handlers.
+     * 
+     * @param location the location used to resolve relative paths
+     * @param resources the resources used to localize the root object
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
@@ -200,6 +210,12 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
     }
 
+    /**
+     * Initializes the game view with the board and brick display components.
+     * 
+     * @param boardMatrix the initial state of the game board
+     * @param brick the initial brick data for rendering
+     */
     public void initGameView(int[][] boardMatrix, ViewData brick) {
         isGameInitialized = true;
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
@@ -464,6 +480,11 @@ public class GuiController implements Initializable {
     }
 
 
+    /**
+     * Refreshes the brick display with updated position and state information.
+     * 
+     * @param brick the updated brick view data
+     */
     public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
@@ -498,6 +519,11 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Refreshes the game board background with the updated board state.
+     * 
+     * @param board the updated board matrix
+     */
     public void refreshGameBackground(int[][] board) {
         for (int i = 2; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -628,15 +654,30 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Sets the event listener for handling game events.
+     * 
+     * @param eventListener the listener to handle input events
+     */
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
     }
 
+    /**
+     * Binds the score display to the game score property for automatic updates.
+     * 
+     * @param integerProperty the score property to bind to
+     */
     public void bindScore(IntegerProperty integerProperty) {
         // Connect score display to game score - updates automatically
         scoreText.textProperty().bind(integerProperty.asString());
     }
 
+    /**
+     * Binds the level display to the game level property and sets up automatic fall speed adjustment.
+     * 
+     * @param integerProperty the level property to bind to
+     */
     public void bindLevel(IntegerProperty integerProperty) {
         // Connect level display to game level - updates automatically
         levelText.textProperty().bind(integerProperty.asString());
@@ -675,17 +716,30 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Binds the lines display to the game lines cleared property for automatic updates.
+     * 
+     * @param integerProperty the lines property to bind to
+     */
     public void bindLines(IntegerProperty integerProperty) {
         // Connect lines display to game lines - updates automatically
         linesText.textProperty().bind(integerProperty.asString());
     }
 
+    /**
+     * Handles the game over state by stopping the game and displaying the game over panel.
+     */
     public void gameOver() {
         timeLine.stop();
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
     }
 
+    /**
+     * Starts a new game by resetting the game state and restarting the timeline.
+     * 
+     * @param actionEvent the action event that triggered the new game (may be null)
+     */
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
         gameOverPanel.setVisible(false);
@@ -730,7 +784,9 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
     
-    // Show the main menu (called on startup or when returning from game)
+    /**
+     * Shows the main menu by hiding game elements and displaying the menu panel.
+     */
     public void showMainMenu() {
         // Stop the game if running
         if (timeLine != null) {
@@ -785,9 +841,7 @@ public class GuiController implements Initializable {
         newGame(null);
     }
 
-    /**
-     * Helper method to show/hide all game elements at once
-     */
+    // Shows or hides all game UI elements
     private void setGameElementsVisible(boolean visible) {
         gamePanel.setVisible(visible);
         gamePanel.setManaged(visible);
@@ -808,9 +862,7 @@ public class GuiController implements Initializable {
         }
     }
 
-    /**
-     * Helper method to set the root pane style
-     */
+    // Sets the background style of the root pane
     private void setRootPaneStyle(String style) {
         if (gamePanel.getParent() != null && gamePanel.getParent().getParent() != null) {
             javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) gamePanel.getParent().getParent();

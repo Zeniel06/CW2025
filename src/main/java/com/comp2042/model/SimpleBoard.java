@@ -10,6 +10,10 @@ import com.comp2042.util.MatrixOperations;
 
 import java.awt.*;
 
+/**
+ * Implementation of the Board interface representing the Tetris game board.
+ * Manages the game state, brick movements, collision detection, and game mechanics.
+ */
 public class SimpleBoard implements Board {
 
     private final int width;
@@ -25,6 +29,12 @@ public class SimpleBoard implements Board {
     // Prevents holding/swapping multiple times per piece (standard Tetris rule)
     private boolean canHold;
 
+    /**
+     * Constructs a new SimpleBoard with the specified dimensions.
+     * 
+     * @param width the number of rows on the board
+     * @param height the number of columns on the board
+     */
     public SimpleBoard(int width, int height) {
         this.width = width;
         this.height = height;
@@ -34,27 +44,37 @@ public class SimpleBoard implements Board {
         score = new Score();
     }
 
+    /**
+     * Attempts to move the current brick down one row.
+     * 
+     * @return true if the movement was successful, false if the brick cannot move down
+     */
     @Override
     public boolean moveBrickDown() {
         return tryMoveBrick(0, 1);
     }
 
+    /**
+     * Attempts to move the current brick left one column.
+     * 
+     * @return true if the movement was successful, false if blocked
+     */
     @Override
     public boolean moveBrickLeft() {
         return tryMoveBrick(-1, 0);
     }
 
+    /**
+     * Attempts to move the current brick right one column.
+     * 
+     * @return true if the movement was successful, false if blocked
+     */
     @Override
     public boolean moveBrickRight() {
         return tryMoveBrick(1, 0);
     }
 
-    /**
-     * Helper method to attempt moving the brick by the specified offset.
-     * @param dx horizontal offset
-     * @param dy vertical offset
-     * @return true if move was successful, false if blocked
-     */
+    // Attempts to move brick by offset (dx, dy), returns true if successful
     private boolean tryMoveBrick(int dx, int dy) {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
         Point newPosition = new Point(currentOffset);
@@ -74,6 +94,11 @@ public class SimpleBoard implements Board {
         return false;
     }
 
+    /**
+     * Attempts to rotate the current brick clockwise.
+     * 
+     * @return true if the rotation was successful, false if blocked
+     */
     @Override
     public boolean rotateLeftBrick() {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
@@ -87,6 +112,11 @@ public class SimpleBoard implements Board {
         }
     }
 
+    /**
+     * Instantly drops the brick to the bottom position.
+     * 
+     * @return the number of rows the brick dropped
+     */
     @Override
     public int hardDropBrick() {
         // Store the starting position
@@ -99,6 +129,11 @@ public class SimpleBoard implements Board {
         return ghostY - initialY;
     }
 
+    /**
+     * Creates and spawns a new brick at the top of the board.
+     * 
+     * @return true if successful, false otherwise
+     */
     @Override
     public boolean createNewBrick() {
         Brick currentBrick = brickGenerator.getBrick();
@@ -110,11 +145,21 @@ public class SimpleBoard implements Board {
         return false; // Return value maintained for interface compatibility
     }
 
+    /**
+     * Gets the current state of the game board matrix.
+     * 
+     * @return the board matrix
+     */
     @Override
     public int[][] getBoardMatrix() {
         return currentGameMatrix;
     }
 
+    /**
+     * Gets the current view data for rendering the game state.
+     * 
+     * @return the view data containing brick positions and states
+     */
     @Override
     public ViewData getViewData() {
         int ghostY = calculateGhostPosition();  // Calculate where the brick will land for ghost preview
@@ -138,11 +183,19 @@ public class SimpleBoard implements Board {
         return ghostY;
     }
 
+    /**
+     * Merges the current falling brick into the background board matrix.
+     */
     @Override
     public void mergeBrickToBackground() {
         currentGameMatrix = MatrixOperations.merge(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
     }
 
+    /**
+     * Clears all completed rows and returns information about the clearing operation.
+     * 
+     * @return the clear row data containing lines removed and score bonus
+     */
     @Override
     public ClearRow clearRows() {
         ClearRow clearRow = MatrixOperations.checkRemoving(currentGameMatrix);
@@ -151,12 +204,20 @@ public class SimpleBoard implements Board {
 
     }
 
+    /**
+     * Gets the score tracking object for the current game.
+     * 
+     * @return the score object
+     */
     @Override
     public Score getScore() {
         return score;
     }
 
 
+    /**
+     * Resets the board and starts a new game.
+     */
     @Override
     public void newGame() {
         currentGameMatrix = new int[width][height];
@@ -167,6 +228,11 @@ public class SimpleBoard implements Board {
         createNewBrick();
     }
 
+    /**
+     * Checks if blocks have reached the danger line at the top of the play area.
+     * 
+     * @return true if game over condition is met, false otherwise
+     */
     @Override
     public boolean isDangerLineReached() {
         // Check if any blocks exist at row 2 (top of visible play area)
@@ -179,6 +245,11 @@ public class SimpleBoard implements Board {
         return false;
     }
 
+    /**
+     * Stores or swaps the current brick with the held brick.
+     * 
+     * @return true if hold was successful, false if already used for this brick
+     */
     @Override
     public boolean holdCurrentBrick() {
         // Check if player already used hold/swap for this piece
@@ -206,6 +277,11 @@ public class SimpleBoard implements Board {
         return true;
     }
 
+    /**
+     * Gets the shape matrix of the currently held brick.
+     * 
+     * @return the held brick shape, or null if no brick is held
+     */
     @Override
     public int[][] getHeldBrickShape() {
         // Return null if no piece is held, otherwise return its shape matrix

@@ -7,10 +7,17 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
 
+/**
+ * UI panel for the main menu displayed when the application starts.
+ * Provides options to start a new game.
+ */
 public class MainMenuPanel extends BorderPane {
 
     private Button startGameButton;
 
+    /**
+     * Constructs a new MainMenuPanel with the title and game start button.
+     */
     public MainMenuPanel() {
         // Create the title label
         final Label titleLabel = new Label("TETRIS");
@@ -34,6 +41,11 @@ public class MainMenuPanel extends BorderPane {
         setCenter(contentBox);
     }
 
+    /**
+     * Gets the start game button.
+     * 
+     * @return the button that starts a new game
+     */
     public Button getStartGameButton() {
         return startGameButton;
     }

@@ -10,19 +10,30 @@ import com.comp2042.model.Board;
 import com.comp2042.model.SimpleBoard;
 import com.comp2042.ui.GuiController;
 
+/**
+ * Main game controller that manages the Tetris game logic and coordinates between the model and view.
+ * Implements event handling for player inputs and manages game state transitions.
+ */
 public class GameController implements InputEventListener {
 
     private Board board = new SimpleBoard(25, 10);
 
     private final GuiController viewGuiController;
 
+    /**
+     * Constructs a new GameController with the specified GUI controller.
+     * 
+     * @param c the GUI controller for managing the view layer
+     */
     public GameController(GuiController c) {
         viewGuiController = c;
         viewGuiController.setEventListener(this);
         // Don't initialize game yet - wait for user to select a mode
     }
     
-    // Initialize the game when user selects a mode
+    /**
+     * Initializes the game by creating the first brick and setting up the view bindings.
+     */
     public void initializeGame() {
         board.createNewBrick();
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
@@ -31,6 +42,12 @@ public class GameController implements InputEventListener {
         viewGuiController.bindLines(board.getScore().linesProperty());
     }
 
+    /**
+     * Handles the down movement event for the falling brick.
+     * 
+     * @param event the move event containing the source of the movement
+     * @return the down data containing cleared row information and updated view data
+     */
     @Override
     public DownData onDownEvent(MoveEvent event) {
         boolean canMove = board.moveBrickDown();
@@ -49,24 +66,48 @@ public class GameController implements InputEventListener {
         return new DownData(clearRow, board.getViewData());
     }
 
+    /**
+     * Handles the left movement event for the falling brick.
+     * 
+     * @param event the move event
+     * @return the updated view data after the movement
+     */
     @Override
     public ViewData onLeftEvent(MoveEvent event) {
         board.moveBrickLeft();
         return board.getViewData();
     }
 
+    /**
+     * Handles the right movement event for the falling brick.
+     * 
+     * @param event the move event
+     * @return the updated view data after the movement
+     */
     @Override
     public ViewData onRightEvent(MoveEvent event) {
         board.moveBrickRight();
         return board.getViewData();
     }
 
+    /**
+     * Handles the rotation event for the falling brick.
+     * 
+     * @param event the move event
+     * @return the updated view data after the rotation
+     */
     @Override
     public ViewData onRotateEvent(MoveEvent event) {
         board.rotateLeftBrick();
         return board.getViewData();
     }
 
+    /**
+     * Handles the hard drop event, instantly dropping the brick to the bottom position.
+     * 
+     * @param event the move event
+     * @return the down data containing cleared row information and updated view data
+     */
     @Override
     public DownData onHardDropEvent(MoveEvent event) {
         // Drop the brick instantly to the bottom and award points
@@ -83,6 +124,12 @@ public class GameController implements InputEventListener {
         return new DownData(clearRow, board.getViewData());
     }
 
+    /**
+     * Handles the hold event, storing or swapping the current brick with the held brick.
+     * 
+     * @param event the move event
+     * @return the updated view data after the hold operation
+     */
     @Override
     public ViewData onHoldEvent(MoveEvent event) {
         // Handle hold piece action - stores/swaps current piece with held piece
@@ -90,6 +137,9 @@ public class GameController implements InputEventListener {
         return board.getViewData();
     }
 
+    /**
+     * Creates a new game by resetting the board and refreshing the view.
+     */
     @Override
     public void createNewGame() {
         board.newGame();
@@ -97,10 +147,7 @@ public class GameController implements InputEventListener {
         viewGuiController.refreshBrick(board.getViewData());
     }
 
-    /**
-     * Common logic for locking a brick and handling row clearing.
-     * @return ClearRow if successful, null if game over occurred
-     */
+    // Locks brick and handles row clearing, returns null if game over
     private ClearRow lockBrickAndHandleClearing() {
         // Lock the brick in place
         board.mergeBrickToBackground();

@@ -7,11 +7,18 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
 
+/**
+ * UI panel displayed when the game is paused.
+ * Provides options to resume the game or return to the main menu.
+ */
 public class PauseMenuPanel extends BorderPane {
 
     private Button resumeButton;
     private Button mainMenuButton;
 
+    /**
+     * Constructs a new PauseMenuPanel with pause label and control buttons.
+     */
     public PauseMenuPanel() {
         // Create the "PAUSED" label
         final Label pausedLabel = new Label("PAUSED");
@@ -39,10 +46,20 @@ public class PauseMenuPanel extends BorderPane {
         setCenter(contentBox);
     }
 
+    /**
+     * Gets the resume button.
+     * 
+     * @return the button that resumes the game
+     */
     public Button getResumeButton() {
         return resumeButton;
     }
 
+    /**
+     * Gets the main menu button.
+     * 
+     * @return the button that returns to the main menu
+     */
     public Button getMainMenuButton() {
         return mainMenuButton;
     }

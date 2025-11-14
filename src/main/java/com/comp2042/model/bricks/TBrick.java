@@ -5,6 +5,7 @@ import com.comp2042.util.MatrixOperations;
 import java.util.ArrayList;
 import java.util.List;
 
+// T-shaped brick with 4 rotation states
 final class TBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
