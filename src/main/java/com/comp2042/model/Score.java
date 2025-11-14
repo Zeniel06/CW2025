@@ -60,6 +60,12 @@ public final class Score {
         updateLevel();
     }
 
+    // Calculates and updates the level based on lines cleared
+    private void updateLevel() {
+        int newLevel = (lines.getValue() / 3) + 1;
+        level.setValue(newLevel);
+    }
+
     /**
      * Resets all score values to their initial state for a new game.
      */
