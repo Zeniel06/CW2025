@@ -158,10 +158,8 @@ public class GuiController implements Initializable {
                 }
                 // Escape key toggles pause menu (only when game is initialized)
                 if (keyEvent.getCode() == KeyCode.ESCAPE && isGameInitialized) {
-                    if (isGameOver.getValue() == Boolean.FALSE) {
-                        togglePause();
-                        keyEvent.consume();
-                    }
+                    togglePause();
+                    keyEvent.consume();
                 }
                 if (keyEvent.getCode() == KeyCode.N && isGameInitialized) {
                     newGame(null);
@@ -800,6 +798,10 @@ public class GuiController implements Initializable {
             if (backgroundMusic != null) {
                 backgroundMusic.pause();
             }
+            // Hide game over panel if visible, show pause menu
+            if (isGameOver.getValue() == Boolean.TRUE) {
+                gameOverPanel.setVisible(false);
+            }
             pauseMenuPanel.setVisible(true);
             pauseMenuPanel.toFront();
         } else {
@@ -812,9 +814,17 @@ public class GuiController implements Initializable {
     private void resumeGame() {
         isPause.setValue(Boolean.FALSE);
         pauseMenuPanel.setVisible(false);
-        timeLine.play();
-        if (backgroundMusic != null) {
-            backgroundMusic.play();
+        
+        // If game is over, show game over panel instead
+        if (isGameOver.getValue() == Boolean.TRUE) {
+            gameOverPanel.setVisible(true);
+            gameOverPanel.toFront();
+        } else {
+            // Normal resume 
+            timeLine.play();
+            if (backgroundMusic != null) {
+                backgroundMusic.play();
+            }
         }
         gamePanel.requestFocus();
     }
