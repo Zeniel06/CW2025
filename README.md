@@ -57,7 +57,7 @@
 
 ##  Implemented Features
 
-### 🎮 Core Gameplay Features
+###  Core Gameplay Features
 
 #### **1. Core Gameplay Loop**
 - GameController has a standard 10 by 20 visible playfield with left and right movement and brick rotation that are mapped to the keyboard controls, ensuring smooth gameplay.
@@ -113,7 +113,7 @@
 
 ---
 
-## 📝 New Java Classes Added
+##  New Java Classes Added
 
 ### 1. MainMenuPanel
 **Path:** `src/main/java/com/comp2042/ui/MainMenuPanel.java`
