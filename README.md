@@ -132,7 +132,7 @@
 ##  Modified Java Classes
 
 ### 1. GameController
-**Path:** `src/main/java/com/comp2042/controller/GameController.java`
+**Location:** `src/main/java/com/comp2042/controller/GameController.java`
 - The game board initialization is delayed until the user presses the "Start Game" button from the main menu panel
 - Builds the UI for the score, level, and line bindings that creates the enhanced HUD
 - Centralises the brick-lock and row-clearing
@@ -140,13 +140,13 @@
 - These improvements help maintain the flow of the game while supporting the multitude of mechanics implemented
 
 ### 2. Board
-**Path:** `src/main/java/com/comp2042/model/Board.java`
+**Location:** `src/main/java/com/comp2042/model/Board.java`
 - Introduces methods for hard-drop support, danger-line detection, hold piece swapping and retrieving held bricks
 - Makes the game much more intuitive and interactive
 - Allows GameController and UI to call these features directly without any extra work
 
 ### 3. SimpleBoard
-**Path:** `src/main/java/com/comp2042/model/SimpleBoard.java`
+**Location:** `src/main/java/com/comp2042/model/SimpleBoard.java`
 - Movement is refactored into a reusable helper which calculates ghost landing rows
 - Implements hard-drops and maintains the held piece state with the "one hold per piece" rule
 - Checks for whether or not the game over condition has been reached
@@ -154,7 +154,7 @@
 - Serves as the foundation for all new gameplay features while preventing collisions
 
 ### 4. GuiController
-**Path:** `src/main/java/com/comp2042/ui/GuiController.java`
+**Location:** `src/main/java/com/comp2042/ui/GuiController.java`
 - Expanded to handle the new inputs used for controls (space for hard drop, shift for hold, escape for pause)
 - Lazy-loads the game and manages the main and pause menu
 - Renders the ghost-blocks, hold and next previews
@@ -163,48 +163,48 @@
 - Implements background music system with JavaFX MediaPlayer that plays during gameplay and responds to game state changes (pause/resume/stop)
 
 ### 5. Main
-**Path:** `src/main/java/com/comp2042/ui/Main.java`
+**Location:** `src/main/java/com/comp2042/ui/Main.java`
 - Displays the main menu screen immediately on startup
 - Resizes the window screen, locking it to prevent any changes
 
 ### 6. InputEventListener
-**Path:** `src/main/java/com/comp2042/event/InputEventListener.java`
+**Location:** `src/main/java/com/comp2042/event/InputEventListener.java`
 - Adds methods for hard drops and hold events so that the UI can trigger these actions without any duplicates in the code
 - Keeps the event helper in synchronisation with the control scheme
 - Ensures smooth communications between the UI and game logic
 
 ### 7. EventType
-**Path:** `src/main/java/com/comp2042/event/EventType.java`
+**Location:** `src/main/java/com/comp2042/event/EventType.java`
 - Added new HARD_DROP and HOLD constants
 - Gives the program clear names for the new actions
 - The enum lists every move in one place, so the controller can now easily identify what to do for each given input
 
 ### 8. Score
-**Path:** `src/main/java/com/comp2042/model/Score.java`
+**Location:** `src/main/java/com/comp2042/model/Score.java`
 - Implemented an addlines helper, visible level and lines counter
 - Automated level progression system for every 3 lines that are cleared
 - All three of these properties are cleared every time the reset method is triggered
 - Enables the game logic to respond to the changes in game state easily
 
 ### 9. ViewData
-**Path:** `src/main/java/com/comp2042/data/ViewData.java`
+**Location:** `src/main/java/com/comp2042/data/ViewData.java`
 - Packages the ghost-block landing position alongside held brick matrices for the hold panel
 - Includes the existing current and next brick data
 - Returns fresh copies of the array to prevent the code from accidentally changing the game state while rendering
 
 ### 10. BrickRotator
-**Path:** `src/main/java/com/comp2042/model/BrickRotator.java`
+**Location:** `src/main/java/com/comp2042/model/BrickRotator.java`
 - Provides a `getBrick()` accessor so SimpleBoard can retrieve the live brick needed for hold/swapping operations
 - Ensures efficient handling of hold swaps while the rotator stays strictly responsible for the current brick
 
 ### 11. MatrixOperations
-**Path:** `src/main/java/com/comp2042/util/MatrixOperations.java`
+**Location:** `src/main/java/com/comp2042/util/MatrixOperations.java`
 - Repositioned the shared collision utility into the new util package
 - Refines the checkOutOfBound helper for clarity
 - Continues to support the ghost calculation loop and promotes consistent reuse across the reorganised packages
 
 ### 12. RandomBrickGenerator
-**Path:** `src/main/java/com/comp2042/model/bricks/RandomBrickGenerator.java`
+**Location:** `src/main/java/com/comp2042/model/bricks/RandomBrickGenerator.java`
 - Adds a `getRandomBrick()` helper to seed and refresh the upcoming-brick queue consistently
 - Reduces duplication and makes the generator easier to extend
 - Ensures the queue always contains at least one future piece for the next-preview panel

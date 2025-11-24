@@ -782,6 +782,11 @@ public class GuiController implements Initializable {
         // (needed in case level was already 1, which wouldn't trigger the listener)
         updateFallSpeed(1);
         
+        // Restart background music when starting a new game
+        if (backgroundMusic != null) {
+            backgroundMusic.play();
+        }
+        
         gamePanel.requestFocus();
     }
 
