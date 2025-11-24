@@ -12,8 +12,8 @@ public final class ViewData {
     private final int xPosition;
     private final int yPosition;
     private final int[][] nextBrickData;
-    private final int ghostYPosition;  // Y position where the brick will land (for ghost preview)
-    private final int[][] heldBrickData;  // Hold piece feature - the held brick shape (null if no brick is held)
+    private final int ghostYPosition;  // Y position where the brick will land
+    private final int[][] heldBrickData;  // Hold piece feature
 
     /**
      * Constructs a new ViewData object with all view-related information.

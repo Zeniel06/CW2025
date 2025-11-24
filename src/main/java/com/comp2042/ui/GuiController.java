@@ -29,6 +29,8 @@ import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -94,6 +96,9 @@ public class GuiController implements Initializable {
     private final BooleanProperty isPause = new SimpleBooleanProperty();
 
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
+    
+    // Sound effects
+    private MediaPlayer backgroundMusic;
 
     /**
      * Initializes the GUI controller and sets up all UI components and event handlers.
@@ -208,6 +213,22 @@ public class GuiController implements Initializable {
         reflection.setFraction(0.8);
         reflection.setTopOpacity(0.9);
         reflection.setTopOffset(-12);
+        
+        // Initialize sound effects
+        initializeSounds();
+    }
+    
+    // Initialize background music
+    private void initializeSounds() {
+        try {
+            // Load background music (loops continuously)
+            String musicPath = getClass().getClassLoader().getResource("background_music.mp3").toExternalForm();
+            backgroundMusic = new MediaPlayer(new Media(musicPath));
+            backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
+            backgroundMusic.setVolume(0.15); // 15% volume for softer background music
+        } catch (Exception e) {
+            System.out.println("Background music not found. Add 'background_music.mp3' to resources folder.");
+        }
     }
 
     /**
@@ -731,6 +752,9 @@ public class GuiController implements Initializable {
      */
     public void gameOver() {
         timeLine.stop();
+        if (backgroundMusic != null) {
+            backgroundMusic.stop();
+        }
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
     }
@@ -768,6 +792,9 @@ public class GuiController implements Initializable {
             // Pause the game
             isPause.setValue(Boolean.TRUE);
             timeLine.pause();
+            if (backgroundMusic != null) {
+                backgroundMusic.pause();
+            }
             pauseMenuPanel.setVisible(true);
             pauseMenuPanel.toFront();
         } else {
@@ -781,6 +808,9 @@ public class GuiController implements Initializable {
         isPause.setValue(Boolean.FALSE);
         pauseMenuPanel.setVisible(false);
         timeLine.play();
+        if (backgroundMusic != null) {
+            backgroundMusic.play();
+        }
         gamePanel.requestFocus();
     }
     
@@ -791,6 +821,11 @@ public class GuiController implements Initializable {
         // Stop the game if running
         if (timeLine != null) {
             timeLine.stop();
+        }
+        
+        // Stop background music
+        if (backgroundMusic != null) {
+            backgroundMusic.stop();
         }
         
         // Hide all game-related panels
@@ -835,6 +870,11 @@ public class GuiController implements Initializable {
         // Show all game elements
         if (isGameInitialized) {
             setGameElementsVisible(true);
+        }
+        
+        // Start background music
+        if (backgroundMusic != null) {
+            backgroundMusic.play();
         }
         
         // Start new game
