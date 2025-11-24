@@ -55,7 +55,7 @@
 
 ---
 
-## ✨ Implemented Features
+##  Implemented Features
 
 ### 🎮 Core Gameplay Features
 
@@ -98,7 +98,7 @@
 
 ---
 
-## 🎯 Controls
+##  Controls
 
 | Key | Action |
 |-----|--------|
@@ -129,7 +129,7 @@
 
 ---
 
-## 🔧 Modified Java Classes
+##  Modified Java Classes
 
 ### 1. GameController
 **Path:** `src/main/java/com/comp2042/controller/GameController.java`
