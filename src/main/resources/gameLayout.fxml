@@ -17,9 +17,10 @@
 
     <Group fx:id="groupNotification" layoutX="10" layoutY="203">
         <VBox alignment="CENTER">
-            <GameOverPanel fx:id="gameOverPanel"/>
         </VBox>
     </Group>
+    
+    <GameOverPanel fx:id="gameOverPanel" prefWidth="400" prefHeight="500"/>
     <stylesheets>
         <URL value="@window_style.css"/>
     </stylesheets>

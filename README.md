@@ -21,18 +21,39 @@
 1. **Open the terminal at the project root**
 
 2. **Verify the toolchain**
+
+   **Windows (Command Prompt/PowerShell):**
+   ```cmd
+   mvnw.cmd --version
+   ```
+
+   **macOS:**
    ```bash
    ./mvnw --version
    ```
    - The output should have listed Java version 23 and Apache Maven wrapper
 
 3. **Compile the project**
+
+   **Windows (Command Prompt/PowerShell):**
+   ```cmd
+   mvnw.cmd clean package
+   ```
+
+   **macOS:**
    ```bash
    ./mvnw clean package
    ```
    - Maven will resolve the dependencies and compile the JavaFX resources
 
 4. **Run the application directly using Maven**
+
+   **Windows (Command Prompt/PowerShell):**
+   ```cmd
+   mvnw.cmd clean javafx:run
+   ```
+
+   **macOS:**
    ```bash
    ./mvnw clean javafx:run
    ```
@@ -94,7 +115,9 @@
 - On startup the game boots into MainMenuPanel
 - Pressing **Start Game** causes GameController to initialise the board and begin a fresh session immediately
 - Pressing **Escape** opens the pause menu with resume and back to main menu options
-- GameOverPanel triggers when the danger line has been breached which freezes the screen so players can choose to restart or head back to the main menu
+- GameOverPanel triggers when the danger line has been breached, displaying a centered overlay with "GAME OVER" text, final score, and restart instructions
+- The game board dims and active bricks are hidden when game over occurs, providing clear visual feedback
+- Players can press **"N"** to restart immediately
 
 ---
 
@@ -161,49 +184,61 @@
 - Shows the live statistic scores
 - Adjusts the fall speed whenever the level changes accordingly
 - Implements background music system with JavaFX MediaPlayer that plays during gameplay and responds to game state changes (pause/resume/stop)
+- Manages game over visual effects by dimming the board (30% opacity) and hiding active/ghost bricks for clear game state feedback
+- Retrieves and passes the final score to the GameOverPanel for display
+- Restores full visibility and opacity when restarting games
 
-### 5. Main
+### 5. GameOverPanel
+**Location:** `src/main/java/com/comp2042/ui/GameOverPanel.java`
+- Displays a centered, full-screen overlay (400x500px) when the game ends
+- Shows "GAME OVER" text in white Arial font (56px bold)
+- Displays the final score in gold digital font (32px) for visual emphasis
+- Shows restart instructions ("Press 'N' to Restart") in gray below the score
+- Includes `setScore(int)` method to dynamically update the displayed score
+- Uses a semi-transparent dark background (85% opacity) for text visibility
+
+### 6. Main
 **Location:** `src/main/java/com/comp2042/ui/Main.java`
 - Displays the main menu screen immediately on startup
 - Resizes the window screen, locking it to prevent any changes
 
-### 6. InputEventListener
+### 7. InputEventListener
 **Location:** `src/main/java/com/comp2042/event/InputEventListener.java`
 - Adds methods for hard drops and hold events so that the UI can trigger these actions without any duplicates in the code
 - Keeps the event helper in synchronisation with the control scheme
 - Ensures smooth communications between the UI and game logic
 
-### 7. EventType
+### 8. EventType
 **Location:** `src/main/java/com/comp2042/event/EventType.java`
 - Added new HARD_DROP and HOLD constants
 - Gives the program clear names for the new actions
 - The enum lists every move in one place, so the controller can now easily identify what to do for each given input
 
-### 8. Score
+### 9. Score
 **Location:** `src/main/java/com/comp2042/model/Score.java`
 - Implemented an addlines helper, visible level and lines counter
 - Automated level progression system for every 3 lines that are cleared
 - All three of these properties are cleared every time the reset method is triggered
 - Enables the game logic to respond to the changes in game state easily
 
-### 9. ViewData
+### 10. ViewData
 **Location:** `src/main/java/com/comp2042/data/ViewData.java`
 - Packages the ghost-block landing position alongside held brick matrices for the hold panel
 - Includes the existing current and next brick data
 - Returns fresh copies of the array to prevent the code from accidentally changing the game state while rendering
 
-### 10. BrickRotator
+### 11. BrickRotator
 **Location:** `src/main/java/com/comp2042/model/BrickRotator.java`
 - Provides a `getBrick()` accessor so SimpleBoard can retrieve the live brick needed for hold/swapping operations
 - Ensures efficient handling of hold swaps while the rotator stays strictly responsible for the current brick
 
-### 11. MatrixOperations
+### 12. MatrixOperations
 **Location:** `src/main/java/com/comp2042/util/MatrixOperations.java`
 - Repositioned the shared collision utility into the new util package
 - Refines the checkOutOfBound helper for clarity
 - Continues to support the ghost calculation loop and promotes consistent reuse across the reorganised packages
 
-### 12. RandomBrickGenerator
+### 13. RandomBrickGenerator
 **Location:** `src/main/java/com/comp2042/model/bricks/RandomBrickGenerator.java`
 - Adds a `getRandomBrick()` helper to seed and refresh the upcoming-brick queue consistently
 - Reduces duplication and makes the generator easier to extend

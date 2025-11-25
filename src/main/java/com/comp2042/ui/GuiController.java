@@ -747,24 +747,60 @@ public class GuiController implements Initializable {
 
     /**
      * Handles the game over state by stopping the game and displaying the game over panel.
+     * Dims the game board, hides falling bricks, stops music, and shows the game over overlay with final score.
      */
     public void gameOver() {
         timeLine.stop();
         if (backgroundMusic != null) {
             backgroundMusic.stop();
         }
+        // Dim the game board to make game over state clear
+        if (gameBoard != null) {
+            gameBoard.setOpacity(0.3);
+        }
+        gamePanel.setOpacity(0.3);
+        
+        // Hide the falling brick and ghost brick completely when game ends
+        brickPanel.setVisible(false);
+        if (ghostBrickPanel != null) {
+            ghostBrickPanel.setVisible(false);
+        }
+        
+        // Get final score and display it on game over screen
+        try {
+            int finalScore = Integer.parseInt(scoreText.getText());
+            gameOverPanel.setScore(finalScore);
+        } catch (NumberFormatException e) {
+            gameOverPanel.setScore(0);
+        }
+        
         gameOverPanel.setVisible(true);
+        gameOverPanel.toFront();
         isGameOver.setValue(Boolean.TRUE);
     }
 
     /**
      * Starts a new game by resetting the game state and restarting the timeline.
+     * Restores UI element visibility and opacity, clears the hold panel, resets game state,
+     * and restarts background music.
      * 
      * @param actionEvent the action event that triggered the new game (may be null)
      */
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
         gameOverPanel.setVisible(false);
+        
+        // Restore full opacity to game elements that were dimmed
+        if (gameBoard != null) {
+            gameBoard.setOpacity(1.0);
+        }
+        gamePanel.setOpacity(1.0);
+        
+        // Show the falling brick and ghost brick panels again (they were hidden, not dimmed)
+        brickPanel.setVisible(true);
+        if (ghostBrickPanel != null) {
+            ghostBrickPanel.setVisible(true);
+        }
         
         // Clear hold panel for new game
         updateHeldBrickDisplay(null);
