@@ -17,6 +17,9 @@ public class Main extends Application {
 
     /**
      * Starts the JavaFX application and sets up the main game window.
+     * Configures the window to be resizable with scaling support, allowing
+     * the game to dynamically adjust to different window sizes while
+     * maintaining proper proportions.
      * 
      * @param primaryStage the primary stage for the application
      * @throws Exception if there is an error loading the FXML layout
@@ -29,10 +32,15 @@ public class Main extends Application {
         GuiController controller = fxmlLoader.getController();
 
         primaryStage.setTitle("TetrisJFX");
-        Scene scene = new Scene(root, 400, 500); //resize window
+        Scene scene = new Scene(root, 550, 700); // Initial window size
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(true); // Enable window resizing
+        primaryStage.setMinWidth(400); // Set minimum window dimensions
+        primaryStage.setMinHeight(500);
         primaryStage.show();
+        
+        // Initialize controller with scene for scaling
+        controller.initializeScaling(scene);
         
         new GameController(controller);
         controller.showMainMenu();

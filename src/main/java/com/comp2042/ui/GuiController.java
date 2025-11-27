@@ -42,6 +42,8 @@ import java.util.ResourceBundle;
 public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 20;
+    private static final double BASE_WIDTH = 400.0; // Base window dimensions for scaling
+    private static final double BASE_HEIGHT = 500.0;
 
     @FXML
     private GridPane gamePanel;
@@ -69,6 +71,10 @@ public class GuiController implements Initializable {
     private Rectangle[][] rectangles;
     
     private boolean isGameInitialized = false;
+    
+    // Scaling-related fields
+    private javafx.scene.layout.Pane rootPane;
+    private javafx.scene.Scene scene;
 
     // Ghost brick preview - shows where the block will land
     private GridPane ghostBrickPanel;
@@ -99,6 +105,48 @@ public class GuiController implements Initializable {
     
     // Sound effects
     private MediaPlayer backgroundMusic;
+
+    /**
+     * Initializes scaling for the game window to allow resizing.
+     * This method sets up listeners that automatically scale all game elements
+     * when the window is resized.
+     * 
+     * @param scene the game scene to apply scaling to
+     */
+    public void initializeScaling(javafx.scene.Scene scene) {
+        this.scene = scene;
+        javafx.scene.layout.Pane root = (javafx.scene.layout.Pane) scene.getRoot();
+        this.rootPane = root;
+        
+        // Set initial scene background (will be updated based on game state)
+        scene.setFill(javafx.scene.paint.Color.rgb(30, 30, 30));
+        
+        // Set the root pane size (base size before scaling)
+        root.setPrefWidth(BASE_WIDTH);
+        root.setPrefHeight(BASE_HEIGHT);
+        
+        // Create a scale transform for the root pane that scales from top-left (0,0)
+        javafx.scene.transform.Scale scale = new javafx.scene.transform.Scale();
+        scale.setPivotX(0);
+        scale.setPivotY(0);
+        root.getTransforms().add(scale);
+        
+        // Update scale based on window size - elements stay in place but get bigger
+        javafx.beans.value.ChangeListener<Number> sizeListener = (obs, oldVal, newVal) -> {
+            double scaleX = scene.getWidth() / BASE_WIDTH;
+            double scaleY = scene.getHeight() / BASE_HEIGHT;
+            
+            // Apply independent X and Y scaling to fill the window completely
+            scale.setX(scaleX);
+            scale.setY(scaleY);
+        };
+        
+        scene.widthProperty().addListener(sizeListener);
+        scene.heightProperty().addListener(sizeListener);
+        
+        // Trigger initial scaling
+        sizeListener.changed(null, 0, 0);
+    }
 
     /**
      * Initializes the GUI controller and sets up all UI components and event handlers.
@@ -166,7 +214,6 @@ public class GuiController implements Initializable {
                 }
             }
         });
-        gameOverPanel.setVisible(false);
         
         // Initialize pause menu panel
         pauseMenuPanel = new PauseMenuPanel();
@@ -888,7 +935,10 @@ public class GuiController implements Initializable {
             setGameElementsVisible(false);
         }
         
-        // Set background to default dark (no gradient)
+        // Set background to default dark (no gradient) - both scene and root pane
+        if (scene != null) {
+            scene.setFill(javafx.scene.paint.Color.rgb(30, 30, 30));
+        }
         setRootPaneStyle("-fx-background-color: #1e1e1e;");
         
         // Show main menu
@@ -910,7 +960,11 @@ public class GuiController implements Initializable {
         // Hide main menu
         mainMenuPanel.setVisible(false);
         
-        // Restore gradient background when starting game
+        // Restore gradient background when starting game - both scene and root pane
+        // Scene gets solid dark background, root pane gets gradient
+        if (scene != null) {
+            scene.setFill(javafx.scene.paint.Color.rgb(8, 25, 24)); // Dark color matching gradient bottom
+        }
         setRootPaneStyle("-fx-background-color: linear-gradient(to bottom, #2d6a65 0%, #081918 100%);");
         
         // Initialize game if first time
@@ -955,8 +1009,7 @@ public class GuiController implements Initializable {
 
     // Sets the background style of the root pane
     private void setRootPaneStyle(String style) {
-        if (gamePanel.getParent() != null && gamePanel.getParent().getParent() != null) {
-            javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) gamePanel.getParent().getParent();
+        if (rootPane != null) {
             rootPane.setStyle(style);
         }
     }

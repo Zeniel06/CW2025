@@ -107,11 +107,19 @@
 - Stops when returning to main menu or on game over
 - Volume set to 15% for non-intrusive ambient audio
 
-#### **7. UI Redesign**
+#### **7. Resizable Window with Dynamic Scaling**
+- Window can be freely resized by dragging edges or corners
+- All game elements (board, bricks, UI panels, menus) scale proportionally in real-time
+- Maintains layout positions - elements stay in their original spots while scaling
+- Minimum window size of 400x500 ensures playability
+- Initial window size set to 550x700 for comfortable gameplay
+- Background fills entire window with appropriate colors regardless of size
+
+#### **8. UI Redesign**
 - GuiController draws the playfield gridlines as well as the hold panel, next panel and score panel updating them respectively after every move
 - NotificationPanel also animates bonuses whenever multiple lines are cleared
 
-#### **8. Main Menu & Pause Flow**
+#### **9. Main Menu & Pause Flow**
 - On startup the game boots into MainMenuPanel
 - Pressing **Start Game** causes GameController to initialise the board and begin a fresh session immediately
 - Pressing **Escape** opens the pause menu with resume and back to main menu options
@@ -187,6 +195,8 @@
 - Manages game over visual effects by dimming the board (30% opacity) and hiding active/ghost bricks for clear game state feedback
 - Retrieves and passes the final score to the GameOverPanel for display
 - Restores full visibility and opacity when restarting games
+- Implements dynamic window scaling system that maintains proportions and layout positions when the window is resized
+- Manages scene and root pane backgrounds to ensure proper fill colors at all window sizes
 
 ### 5. GameOverPanel
 **Location:** `src/main/java/com/comp2042/ui/GameOverPanel.java`
@@ -200,7 +210,9 @@
 ### 6. Main
 **Location:** `src/main/java/com/comp2042/ui/Main.java`
 - Displays the main menu screen immediately on startup
-- Resizes the window screen, locking it to prevent any changes
+- Enables window resizing with a minimum size constraint (400x500)
+- Sets initial window size to 550x700 for optimal viewing
+- Initializes the scaling system in GuiController to support dynamic resizing
 
 ### 7. InputEventListener
 **Location:** `src/main/java/com/comp2042/event/InputEventListener.java`
