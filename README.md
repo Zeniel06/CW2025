@@ -101,25 +101,33 @@
 - The Score class tracks the ongoing score, lines, and levels to the HUD
 - Raises the fall speed of the bricks as the level increases which is based on the number of lines cleared
 
-#### **6. Background Music**
+#### **6. Dynamic Video Background**
+- Supports video backgrounds that loop continuously throughout the game
+- Video plays at 0.5x speed (half speed) for a smooth, ambient effect
+- Automatically scales with window resizing to fill the entire screen
+- Video audio is muted to prevent interference with background music
+- Falls back gracefully to dark background if no video file is present
+- Place `background_video.mp4` in `src/main/resources/` to enable
+
+#### **7. Background Music**
 - Background music plays continuously during gameplay
 - Automatically pauses when the game is paused
 - Stops when returning to main menu or on game over
 - Volume set to 15% for non-intrusive ambient audio
 
-#### **7. Resizable Window with Dynamic Scaling**
+#### **8. Resizable Window with Dynamic Scaling**
 - Window can be freely resized by dragging edges or corners
-- All game elements (board, bricks, UI panels, menus) scale proportionally in real-time
+- All game elements (board, bricks, UI panels, menus, video background) scale proportionally in real-time
 - Maintains layout positions - elements stay in their original spots while scaling
 - Minimum window size of 400x500 ensures playability
 - Initial window size set to 550x700 for comfortable gameplay
-- Background fills entire window with appropriate colors regardless of size
+- Background video fills entire window and scales accordingly
 
-#### **8. UI Redesign**
+#### **9. UI Redesign**
 - GuiController draws the playfield gridlines as well as the hold panel, next panel and score panel updating them respectively after every move
 - NotificationPanel also animates bonuses whenever multiple lines are cleared
 
-#### **9. Main Menu & Pause Flow**
+#### **10. Main Menu & Pause Flow**
 - On startup the game boots into MainMenuPanel
 - Pressing **Start Game** causes GameController to initialise the board and begin a fresh session immediately
 - Pressing **Escape** opens the pause menu with resume and back to main menu options
@@ -192,11 +200,14 @@
 - Shows the live statistic scores
 - Adjusts the fall speed whenever the level changes accordingly
 - Implements background music system with JavaFX MediaPlayer that plays during gameplay and responds to game state changes (pause/resume/stop)
+- Implements dynamic video background system using MediaPlayer and MediaView that loops continuously at 0.5x speed with muted audio
+- Video background scales automatically with window size and stays behind all UI elements
+- Falls back gracefully to default background if video file is not present
 - Manages game over visual effects by dimming the board (30% opacity) and hiding active/ghost bricks for clear game state feedback
 - Retrieves and passes the final score to the GameOverPanel for display
 - Restores full visibility and opacity when restarting games
 - Implements dynamic window scaling system that maintains proportions and layout positions when the window is resized
-- Manages scene and root pane backgrounds to ensure proper fill colors at all window sizes
+- Manages scene and root pane with transparent backgrounds to allow video to show through
 
 ### 5. GameOverPanel
 **Location:** `src/main/java/com/comp2042/ui/GameOverPanel.java`
