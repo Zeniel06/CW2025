@@ -32,11 +32,11 @@ public class Main extends Application {
         GuiController controller = fxmlLoader.getController();
 
         primaryStage.setTitle("TetrisJFX");
-        Scene scene = new Scene(root, 550, 700); // Initial window size
+        Scene scene = new Scene(root, 650, 740); // Initial window size
         primaryStage.setScene(scene);
         primaryStage.setResizable(true); // Enable window resizing
-        primaryStage.setMinWidth(400); // Set minimum window dimensions
-        primaryStage.setMinHeight(500);
+        primaryStage.setMinWidth(500); // Set minimum window dimensions
+        primaryStage.setMinHeight(540);
         primaryStage.show();
         
         // Initialize controller with scene for scaling

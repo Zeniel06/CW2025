@@ -33,6 +33,8 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -42,8 +44,8 @@ import java.util.ResourceBundle;
 public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 20;
-    private static final double BASE_WIDTH = 400.0; // Base window dimensions for scaling
-    private static final double BASE_HEIGHT = 500.0;
+    private static final double BASE_WIDTH = 500.0; // Base window dimensions for scaling (increased for side panels)
+    private static final double BASE_HEIGHT = 540.0; // Increased for top/bottom margins
 
     @FXML
     private GridPane gamePanel;
@@ -85,10 +87,10 @@ public class GuiController implements Initializable {
     private Rectangle[][] heldRectangles; // 4x4 grid to display held brick shape
     private VBox heldBrickContainer;      // Container with "HOLD" label and panel
     
-    // Next piece preview - UI components to display upcoming piece
-    private GridPane nextBrickPanel;      // Panel containing the next brick visualization
-    private Rectangle[][] nextRectangles; // 4x4 grid to display next brick shape
-    private VBox nextBrickContainer;      // Container with "NEXT" label and panel
+    // Next piece preview - UI components to display upcoming 4 pieces in one panel
+    private GridPane nextBrickPanel;               // Single panel containing all 4 brick visualizations
+    private List<Rectangle[][]> nextRectanglesList; // 4x4 grids to display next brick shapes
+    private VBox nextBrickContainer;               // Container with "NEXT" label and panel
 
     // Game statistics - displays score, level, and lines cleared
     private VBox statsContainer;          // Statistics container panel
@@ -254,15 +256,15 @@ public class GuiController implements Initializable {
                 // If no video is loaded, it will fall back to scene background color
                 parentPane.setStyle("-fx-background-color: transparent;");
                 
-                // Add pause menu (centered on screen: 400x500, menu is 300x230)
-                pauseMenuPanel.setLayoutX(50);
-                pauseMenuPanel.setLayoutY(135);
+                // Add pause menu (centered on screen: 500x540, menu is 300x230)
+                pauseMenuPanel.setLayoutX(100);  // (500 - 300) / 2 = 100
+                pauseMenuPanel.setLayoutY(155);  // (540 - 230) / 2 = 155
                 parentPane.getChildren().add(pauseMenuPanel);
                 pauseMenuPanel.toFront();
                 
-                // Add main menu (centered on screen: 400x500, menu is 300x300)
-                mainMenuPanel.setLayoutX(50);  // (400 - 300) / 2 = 50
-                mainMenuPanel.setLayoutY(100); // (500 - 300) / 2 = 100
+                // Add main menu (centered on screen: 500x540, menu is 300x300)
+                mainMenuPanel.setLayoutX(100);  // (500 - 300) / 2 = 100
+                mainMenuPanel.setLayoutY(120); // (540 - 300) / 2 = 120
                 parentPane.getChildren().add(mainMenuPanel);
                 mainMenuPanel.toFront();
             }
@@ -351,8 +353,11 @@ public class GuiController implements Initializable {
                 brickPanel.add(rectangle, j, i);
             }
         }
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
-        brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + 1));
+        // Account for gameBoard's layoutX and layoutY position
+        double gameBoardOffsetX = gameBoard.getLayoutX();
+        double gameBoardOffsetY = gameBoard.getLayoutY();
+        brickPanel.setLayoutX(gameBoardOffsetX + gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
+        brickPanel.setLayoutY(gameBoardOffsetY - 42 + gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + 1));
         // Bring the falling brick panel to front so it's visible above the game board
         brickPanel.toFront();
 
@@ -376,8 +381,8 @@ public class GuiController implements Initializable {
             }
         }
         // Position ghost at the calculated landing position
-        ghostBrickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
-        ghostBrickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * (BRICK_SIZE + 1));
+        ghostBrickPanel.setLayoutX(gameBoardOffsetX + gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
+        ghostBrickPanel.setLayoutY(gameBoardOffsetY - 42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * (BRICK_SIZE + 1));
         
         // Add ghost brick panel to the parent pane
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(ghostBrickPanel);
@@ -411,30 +416,17 @@ public class GuiController implements Initializable {
         heldBrickContainer.getChildren().addAll(holdLabel, heldBrickPanel);
         heldBrickContainer.setStyle("-fx-alignment: center;");
         
-        // Position to the right of the game board
-        heldBrickContainer.setLayoutX(gamePanel.getLayoutX() + 240);
+        // Position to the right of the game board (right side panel)
+        // Account for both gameBoard's layoutX and gamePanel's layoutX
+        double gameBoardX = gameBoard.getLayoutX();
+        heldBrickContainer.setLayoutX(gameBoardX + gamePanel.getLayoutX() + 208); // 20px margin from right edge
         heldBrickContainer.setLayoutY(gamePanel.getLayoutY() + 10);
         
         // Add to parent pane (makes it visible on screen)
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(heldBrickContainer);
 
-        // === NEXT PIECE PREVIEW - Initialize UI panel to display upcoming piece ===
-        nextBrickPanel = new GridPane();
-        nextBrickPanel.setVgap(1);
-        nextBrickPanel.setHgap(1);
-        // Style: same as hold panel for consistency
-        nextBrickPanel.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7); -fx-border-color: rgba(100, 150, 200, 0.8); -fx-border-width: 2; -fx-padding: 5; -fx-pref-width: 97;");
-        
-        // Create 4x4 grid of rectangles (max Tetris piece size)
-        nextRectangles = new Rectangle[4][4];
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(Color.TRANSPARENT);
-                nextRectangles[i][j] = rectangle;
-                nextBrickPanel.add(rectangle, j, i);
-            }
-        }
+        // === NEXT 4 PIECES PREVIEW - Initialize single panel to display upcoming 4 pieces ===
+        nextRectanglesList = new ArrayList<>();
         
         // Create "NEXT" label above the panel
         Text nextLabel = new Text("NEXT");
@@ -442,14 +434,47 @@ public class GuiController implements Initializable {
         nextLabel.setFont(Font.font("Arial", 14));
         nextLabel.setStyle("-fx-font-weight: bold;");
         
-        // Combine label and panel in vertical container
+        // Create single large panel for all 4 bricks
+        nextBrickPanel = new GridPane();
+        nextBrickPanel.setVgap(1);
+        nextBrickPanel.setHgap(1);
+        // Style: larger panel to hold all 4 bricks stacked vertically
+        nextBrickPanel.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7); -fx-border-color: rgba(100, 150, 200, 0.8); -fx-border-width: 2; -fx-padding: 5; -fx-pref-width: 97;");
+        
+        // Create 4 sections within the single panel (each section is 4x4, separated by gaps)
+        for (int brickIndex = 0; brickIndex < 4; brickIndex++) {
+            Rectangle[][] rectangles = new Rectangle[4][4];
+            int rowOffset = brickIndex * 5; // 4 rows per brick + 1 row gap
+            
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    rectangles[i][j] = rectangle;
+                    nextBrickPanel.add(rectangle, j, rowOffset + i);
+                }
+            }
+            
+            nextRectanglesList.add(rectangles);
+            
+            // Add a gap row between bricks (except after the last one)
+            if (brickIndex < 3) {
+                for (int j = 0; j < 4; j++) {
+                    Rectangle gap = new Rectangle(BRICK_SIZE, 8); // 8px gap height
+                    gap.setFill(Color.TRANSPARENT);
+                    nextBrickPanel.add(gap, j, rowOffset + 4);
+                }
+            }
+        }
+        
+        // Create container with label and panel
         nextBrickContainer = new VBox(5);
         nextBrickContainer.getChildren().addAll(nextLabel, nextBrickPanel);
         nextBrickContainer.setStyle("-fx-alignment: center;");
         
-        // Position below the hold panel (hold panel height + gap)
-        nextBrickContainer.setLayoutX(heldBrickContainer.getLayoutX());
-        nextBrickContainer.setLayoutY(heldBrickContainer.getLayoutY() + 130); // Position below hold panel
+        // Position to the left of the game board (modern Tetris style)
+        nextBrickContainer.setLayoutX(gameBoardX - 115); // Left of game board with 20px margin from edge
+        nextBrickContainer.setLayoutY(gamePanel.getLayoutY() + 10); // Align with top
         
         // Add to parent pane (makes it visible on screen)
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(nextBrickContainer);
@@ -535,9 +560,9 @@ public class GuiController implements Initializable {
             "-fx-pref-width: 97;"
         );
         
-        // Position below next panel - aligned properly
-        statsContainer.setLayoutX(nextBrickContainer.getLayoutX());
-        statsContainer.setLayoutY(nextBrickContainer.getLayoutY() + 150);
+        // Position below hold panel on the right side
+        statsContainer.setLayoutX(heldBrickContainer.getLayoutX());
+        statsContainer.setLayoutY(heldBrickContainer.getLayoutY() + 130);
         
         // Add statistics panel to screen
         ((javafx.scene.layout.Pane) gamePanel.getParent().getParent()).getChildren().add(statsContainer);
@@ -597,8 +622,11 @@ public class GuiController implements Initializable {
      */
     public void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
-            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
-            brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + 1));
+            // Account for gameBoard's layoutX and layoutY position
+            double gameBoardOffsetX = gameBoard.getLayoutX();
+            double gameBoardOffsetY = gameBoard.getLayoutY();
+            brickPanel.setLayoutX(gameBoardOffsetX + gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
+            brickPanel.setLayoutY(gameBoardOffsetY - 42 + gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + 1));
             // Ensure the falling brick stays visible on top
             brickPanel.toFront();
             for (int i = 0; i < brick.getBrickData().length; i++) {
@@ -608,8 +636,8 @@ public class GuiController implements Initializable {
             }
             
             // Update ghost brick position when the block moves/rotates
-            ghostBrickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
-            ghostBrickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * (BRICK_SIZE + 1));
+            ghostBrickPanel.setLayoutX(gameBoardOffsetX + gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + 1));
+            ghostBrickPanel.setLayoutY(gameBoardOffsetY - 42 + gamePanel.getLayoutY() + brick.getGhostYPosition() * (BRICK_SIZE + 1));
             // Update ghost outline to match current brick shape
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
@@ -624,8 +652,8 @@ public class GuiController implements Initializable {
             // Update held brick display panel with current held piece
             updateHeldBrickDisplay(brick.getHeldBrickData());
             
-            // Update next brick preview panel with upcoming piece
-            updateNextBrickDisplay(brick.getNextBrickData());
+            // Update next 4 bricks preview panels with upcoming pieces
+            updateNext4BricksDisplay(brick.getNext4BricksData());
         }
     }
 
@@ -743,22 +771,30 @@ public class GuiController implements Initializable {
         }
     }
 
-    // Updates the next brick preview panel with the upcoming piece
-    private void updateNextBrickDisplay(int[][] nextBrickData) {
-        // Clear all rectangles first (reset to transparent)
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                nextRectangles[i][j].setFill(Color.TRANSPARENT);
-                nextRectangles[i][j].setArcHeight(0);
-                nextRectangles[i][j].setArcWidth(0);
+    // Updates the next 4 bricks preview panels with the upcoming pieces
+    private void updateNext4BricksDisplay(List<int[][]> next4BricksData) {
+        // Update each of the 4 preview panels
+        for (int panelIndex = 0; panelIndex < 4 && panelIndex < nextRectanglesList.size(); panelIndex++) {
+            Rectangle[][] rectangles = nextRectanglesList.get(panelIndex);
+            
+            // Clear all rectangles in this panel first
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    rectangles[i][j].setFill(Color.TRANSPARENT);
+                    rectangles[i][j].setArcHeight(0);
+                    rectangles[i][j].setArcWidth(0);
+                }
             }
-        }
-        
-        // Render the next brick in the panel (there's always a next brick)
-        if (nextBrickData != null) {
-            for (int i = 0; i < nextBrickData.length && i < 4; i++) {
-                for (int j = 0; j < nextBrickData[i].length && j < 4; j++) {
-                    setBrickPreviewData(nextBrickData[i][j], nextRectangles[i][j]);
+            
+            // Render the brick if data is available for this panel
+            if (next4BricksData != null && panelIndex < next4BricksData.size()) {
+                int[][] brickData = next4BricksData.get(panelIndex);
+                if (brickData != null) {
+                    for (int i = 0; i < brickData.length && i < 4; i++) {
+                        for (int j = 0; j < brickData[i].length && j < 4; j++) {
+                            setBrickPreviewData(brickData[i][j], rectangles[i][j]);
+                        }
+                    }
                 }
             }
         }

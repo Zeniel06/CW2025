@@ -5,18 +5,18 @@
 <Pane fx:controller="com.comp2042.ui.GuiController"
       xmlns:fx="http://javafx.com/fxml">
     <GridPane fx:id="brickPanel" vgap="1" hgap="1"/>
-    <BorderPane styleClass="gameBoard" fx:id="gameBoard">
+    <BorderPane styleClass="gameBoard" fx:id="gameBoard" layoutX="135" layoutY="20">
         <center>
             <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutY="30" layoutX="40"/>
         </center>
     </BorderPane>
 
-    <Group fx:id="groupNotification" layoutX="10" layoutY="203">
+    <Group fx:id="groupNotification" layoutX="145" layoutY="223">
         <VBox alignment="CENTER">
         </VBox>
     </Group>
     
-    <GameOverPanel fx:id="gameOverPanel" prefWidth="400" prefHeight="500"/>
+    <GameOverPanel fx:id="gameOverPanel" prefWidth="500" prefHeight="540"/>
     <stylesheets>
         <URL value="@window_style.css"/>
     </stylesheets>

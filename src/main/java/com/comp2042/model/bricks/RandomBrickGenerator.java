@@ -18,7 +18,7 @@ public class RandomBrickGenerator implements BrickGenerator {
 
     /**
      * Constructs a new RandomBrickGenerator with all seven standard Tetris brick types.
-     * Initializes the next bricks queue with two random bricks.
+     * Initializes the next bricks queue with five random bricks (current + next 4 preview).
      */
     public RandomBrickGenerator() {
         brickList = new ArrayList<>();
@@ -29,18 +29,22 @@ public class RandomBrickGenerator implements BrickGenerator {
         brickList.add(new SBrick());
         brickList.add(new TBrick());
         brickList.add(new ZBrick());
-        nextBricks.add(getRandomBrick());
-        nextBricks.add(getRandomBrick());
+        // Initialize queue with 5 bricks (1 current + 4 for preview)
+        for (int i = 0; i < 5; i++) {
+            nextBricks.add(getRandomBrick());
+        }
     }
 
     /**
      * Gets the next brick in the sequence and advances the generator.
+     * Maintains a queue of 5 bricks (current + 4 preview).
      * 
      * @return the next brick to be used in the game
      */
     @Override
     public Brick getBrick() {
-        if (nextBricks.size() <= 1) {
+        // Keep queue at 5 bricks (1 current + 4 preview)
+        if (nextBricks.size() <= 4) {
             nextBricks.add(getRandomBrick());
         }
         return nextBricks.poll();
@@ -54,6 +58,22 @@ public class RandomBrickGenerator implements BrickGenerator {
     @Override
     public Brick getNextBrick() {
         return nextBricks.peek();
+    }
+
+    /**
+     * Gets the next 4 bricks for preview without advancing the generator.
+     * 
+     * @return list of the next 4 upcoming bricks
+     */
+    public List<Brick> getNext4Bricks() {
+        List<Brick> preview = new ArrayList<>();
+        int count = 0;
+        for (Brick brick : nextBricks) {
+            if (count >= 4) break;
+            preview.add(brick);
+            count++;
+        }
+        return preview;
     }
 
     // Returns a random brick from the brick list

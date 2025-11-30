@@ -9,6 +9,8 @@ import com.comp2042.model.bricks.RandomBrickGenerator;
 import com.comp2042.util.MatrixOperations;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of the Board interface representing the Tetris game board.
@@ -163,8 +165,18 @@ public class SimpleBoard implements Board {
     @Override
     public ViewData getViewData() {
         int ghostY = calculateGhostPosition();  // Calculate where the brick will land for ghost preview
+        
+        // Get next 4 bricks for preview
+        List<int[][]> next4Bricks = new ArrayList<>();
+        if (brickGenerator instanceof RandomBrickGenerator) {
+            RandomBrickGenerator randomGen = (RandomBrickGenerator) brickGenerator;
+            for (Brick brick : randomGen.getNext4Bricks()) {
+                next4Bricks.add(brick.getShapeMatrix().get(0));
+            }
+        }
+        
         // Include held brick shape in view data so UI can display it
-        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), brickGenerator.getNextBrick().getShapeMatrix().get(0), ghostY, getHeldBrickShape());
+        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), next4Bricks, ghostY, getHeldBrickShape());
     }
 
     // Calculates the Y position where the current brick would land if dropped straight down

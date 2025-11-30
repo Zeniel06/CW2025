@@ -84,7 +84,7 @@
 - GameController has a standard 10 by 20 visible playfield with left and right movement and brick rotation that are mapped to the keyboard controls, ensuring smooth gameplay.
 
 #### **2. Brick Rotation and Randomization**
-- Every new brick that spawns comes from RandomBrickGenerator and BrickRotator preserves each orientation. ViewData then feeds the current and next brick to the preview panels.
+- Every new brick that spawns comes from RandomBrickGenerator and BrickRotator preserves each orientation. ViewData then feeds the current brick and next 4 upcoming bricks to the preview panels.
 
 #### **3. Ghost Blocks and Hard-Drop**
 - `calculateGhostPosition` creates a live outline of where the brick is going to land
@@ -119,12 +119,17 @@
 - Window can be freely resized by dragging edges or corners
 - All game elements (board, bricks, UI panels, menus, video background) scale proportionally in real-time
 - Maintains layout positions - elements stay in their original spots while scaling
-- Minimum window size of 400x500 ensures playability
-- Initial window size set to 550x700 for comfortable gameplay
+- Minimum window size of 500x540 ensures playability with proper margins
+- Initial window size set to 650x740 for comfortable gameplay
 - Background video fills entire window and scales accordingly
+- Game board centered with equal 20px margins on all sides (top, bottom, left, right)
+- NEXT panel positioned on left side, HOLD panel on right side (modern Tetris layout)
 
 #### **9. UI Redesign**
 - GuiController draws the playfield gridlines as well as the hold panel, next panel and score panel updating them respectively after every move
+- Modern Tetris layout with NEXT panel on the left side showing 4 upcoming bricks in a single preview panel
+- HOLD and STATS panels positioned on the right side of the game board
+- Centered game board with equal spacing on all edges for a balanced, professional appearance
 - NotificationPanel also animates bonuses whenever multiple lines are cleared
 
 #### **10. Main Menu & Pause Flow**
@@ -196,7 +201,7 @@
 **Location:** `src/main/java/com/comp2042/ui/GuiController.java`
 - Expanded to handle the new inputs used for controls (space for hard drop, shift for hold, escape for pause)
 - Lazy-loads the game and manages the main and pause menu
-- Renders the ghost-blocks, hold and next previews
+- Renders the ghost-blocks, hold preview, and next 4 bricks preview in a single unified panel
 - Shows the live statistic scores
 - Adjusts the fall speed whenever the level changes accordingly
 - Implements background music system with JavaFX MediaPlayer that plays during gameplay and responds to game state changes (pause/resume/stop)
@@ -221,8 +226,8 @@
 ### 6. Main
 **Location:** `src/main/java/com/comp2042/ui/Main.java`
 - Displays the main menu screen immediately on startup
-- Enables window resizing with a minimum size constraint (400x500)
-- Sets initial window size to 550x700 for optimal viewing
+- Enables window resizing with a minimum size constraint (500x540)
+- Sets initial window size to 650x740 for optimal viewing
 - Initializes the scaling system in GuiController to support dynamic resizing
 
 ### 7. InputEventListener
@@ -247,7 +252,7 @@
 ### 10. ViewData
 **Location:** `src/main/java/com/comp2042/data/ViewData.java`
 - Packages the ghost-block landing position alongside held brick matrices for the hold panel
-- Includes the existing current and next brick data
+- Includes the current brick data and next 4 upcoming bricks for the preview panel
 - Returns fresh copies of the array to prevent the code from accidentally changing the game state while rendering
 
 ### 11. BrickRotator
@@ -263,9 +268,10 @@
 
 ### 13. RandomBrickGenerator
 **Location:** `src/main/java/com/comp2042/model/bricks/RandomBrickGenerator.java`
-- Adds a `getRandomBrick()` helper to seed and refresh the upcoming-brick queue consistently
-- Reduces duplication and makes the generator easier to extend
-- Ensures the queue always contains at least one future piece for the next-preview panel
+- Maintains a queue of 5 bricks (1 current + 4 for preview) for smooth gameplay
+- Adds `getNext4Bricks()` method to return the next 4 upcoming bricks without advancing the queue
+- Ensures the preview panel always displays the correct upcoming pieces
+- Uses `getRandomBrick()` helper to seed and refresh the queue consistently
 
 ---
 
