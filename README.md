@@ -133,12 +133,21 @@
 - NotificationPanel also animates bonuses whenever multiple lines are cleared
 
 #### **10. Main Menu & Pause Flow**
-- On startup the game boots into MainMenuPanel
+- On startup the game boots into MainMenuPanel with **Start Game** and **Settings** buttons
 - Pressing **Start Game** causes GameController to initialise the board and begin a fresh session immediately
+- Pressing **Settings** opens the settings panel with volume control and game controls display
 - Pressing **Escape** opens the pause menu with resume and back to main menu options
 - GameOverPanel triggers when the danger line has been breached, displaying a centered overlay with "GAME OVER" text, final score, and restart instructions
 - The game board dims and active bricks are hidden when game over occurs, providing clear visual feedback
 - Players can press **"N"** to restart immediately
+
+#### **11. Settings Menu**
+- Accessible from the main menu via the **Settings** button
+- **Volume Control**: Real-time adjustment of background music volume using a slider (0-100%)
+- **Game Controls Display**: Comprehensive list of all keyboard controls and their functions
+- Controls shown include both arrow keys and WASD alternatives for movement and rotation
+- **Back Button**: Returns to the main menu
+- Settings panel features a semi-transparent dark background with blue borders matching the game aesthetic
 
 ---
 
@@ -146,10 +155,10 @@
 
 | Key | Action |
 |-----|--------|
-| **←** | Move left |
-| **→** | Move right |
-| **↓** | Move down (soft drop) |
-| **↑** | Rotate piece |
+| **←** or **A** | Move left |
+| **→** or **D** | Move right |
+| **↓** or **S** | Move down (soft drop) |
+| **↑** or **W** | Rotate piece |
 | **SPACE** | Hard drop (instant drop) |
 | **SHIFT** | Hold current piece |
 | **ESCAPE** | Pause/Resume |
@@ -162,14 +171,23 @@
 ### 1. MainMenuPanel
 **Path:** `src/main/java/com/comp2042/ui/MainMenuPanel.java`
 - Introduces a dedicated JavaFX BorderPane for the game's startup screen
-- Displays the branded "Tetris" header with a centralised "Start Game" button
-- Gives players a polished entry point
+- Displays the branded "Tetris" header with "Start Game" and "Settings" buttons
+- Provides access to both game initialization and settings configuration
+- Gives players a polished entry point with complete menu navigation
 
 ### 2. PauseMenuPanel
 **Path:** `src/main/java/com/comp2042/ui/PauseMenuPanel.java`
 - Adds a pop-up pause menu when the escape key is pressed
 - Uses JavaFX BorderPane that dims the background
 - Shows "Resume" and "Main Menu" buttons
+
+### 3. SettingsPanel
+**Path:** `src/main/java/com/comp2042/ui/SettingsPanel.java`
+- Provides a comprehensive settings interface accessible from the main menu
+- Includes a volume slider (0-100%) for real-time adjustment of background music volume
+- Displays all available game controls with their key bindings (arrow keys and WASD alternatives)
+- Features a "Back" button to return to the main menu
+- Styled with a semi-transparent dark background and blue borders for visual consistency
 
 ---
 
@@ -200,11 +218,12 @@
 ### 4. GuiController
 **Location:** `src/main/java/com/comp2042/ui/GuiController.java`
 - Expanded to handle the new inputs used for controls (space for hard drop, shift for hold, escape for pause)
-- Lazy-loads the game and manages the main and pause menu
+- Lazy-loads the game and manages the main menu, pause menu, and settings menu
 - Renders the ghost-blocks, hold preview, and next 4 bricks preview in a single unified panel
 - Shows the live statistic scores
 - Adjusts the fall speed whenever the level changes accordingly
 - Implements background music system with JavaFX MediaPlayer that plays during gameplay and responds to game state changes (pause/resume/stop)
+- Connects the settings panel volume slider to the background music player for real-time volume adjustment
 - Implements dynamic video background system using MediaPlayer and MediaView that loops continuously at 0.5x speed with muted audio
 - Video background scales automatically with window size and stays behind all UI elements
 - Falls back gracefully to default background if video file is not present
@@ -213,6 +232,7 @@
 - Restores full visibility and opacity when restarting games
 - Implements dynamic window scaling system that maintains proportions and layout positions when the window is resized
 - Manages scene and root pane with transparent backgrounds to allow video to show through
+- Handles navigation between main menu and settings panel with appropriate show/hide logic
 
 ### 5. GameOverPanel
 **Location:** `src/main/java/com/comp2042/ui/GameOverPanel.java`

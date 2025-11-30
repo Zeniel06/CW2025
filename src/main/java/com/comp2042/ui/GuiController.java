@@ -65,6 +65,8 @@ public class GuiController implements Initializable {
     private PauseMenuPanel pauseMenuPanel;
     
     private MainMenuPanel mainMenuPanel;
+    
+    private SettingsPanel settingsPanel;
 
     private Rectangle[][] displayMatrix;
 
@@ -247,6 +249,16 @@ public class GuiController implements Initializable {
         // Set up Start Game button action
         mainMenuPanel.getStartGameButton().setOnAction(event -> startGame());
         
+        // Set up Settings button action
+        mainMenuPanel.getSettingsButton().setOnAction(event -> showSettings());
+        
+        // Initialize settings panel
+        settingsPanel = new SettingsPanel();
+        settingsPanel.setVisible(false);
+        
+        // Set up Back button action in settings
+        settingsPanel.getBackButton().setOnAction(event -> returnToMainMenuFromSettings());
+        
         // Add menus to scene - use Platform.runLater to ensure scene graph is ready
         javafx.application.Platform.runLater(() -> {
             if (gamePanel.getParent() != null && gamePanel.getParent().getParent() != null) {
@@ -262,11 +274,17 @@ public class GuiController implements Initializable {
                 parentPane.getChildren().add(pauseMenuPanel);
                 pauseMenuPanel.toFront();
                 
-                // Add main menu (centered on screen: 500x540, menu is 300x300)
+                // Add main menu (centered on screen: 500x540, menu is 300x360)
                 mainMenuPanel.setLayoutX(100);  // (500 - 300) / 2 = 100
-                mainMenuPanel.setLayoutY(120); // (540 - 300) / 2 = 120
+                mainMenuPanel.setLayoutY(90);   // (540 - 360) / 2 = 90
                 parentPane.getChildren().add(mainMenuPanel);
                 mainMenuPanel.toFront();
+                
+                // Add settings menu (centered on screen: 500x540, menu is 400x500)
+                settingsPanel.setLayoutX(50);   // (500 - 400) / 2 = 50
+                settingsPanel.setLayoutY(20);   // (540 - 500) / 2 = 20
+                parentPane.getChildren().add(settingsPanel);
+                settingsPanel.toFront();
             }
         });
         
@@ -282,6 +300,16 @@ public class GuiController implements Initializable {
             backgroundMusic = new MediaPlayer(new Media(musicPath));
             backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
             backgroundMusic.setVolume(0.15); // 15% volume for softer background music
+            
+            // Connect volume slider to background music after settings panel is initialized
+            javafx.application.Platform.runLater(() -> {
+                if (settingsPanel != null && backgroundMusic != null) {
+                    // Bind volume slider to music volume (convert 0-100 to 0.0-1.0)
+                    settingsPanel.getVolumeSlider().valueProperty().addListener((obs, oldVal, newVal) -> {
+                        backgroundMusic.setVolume(newVal.doubleValue() / 100.0);
+                    });
+                }
+            });
         } catch (Exception e) {
             System.out.println("Background music not found. Add 'background_music.mp3' to resources folder.");
         }
@@ -1009,6 +1037,7 @@ public class GuiController implements Initializable {
         // Hide all game-related panels
         pauseMenuPanel.setVisible(false);
         gameOverPanel.setVisible(false);
+        settingsPanel.setVisible(false);
         
         // Hide game elements if initialized
         if (isGameInitialized) {
@@ -1028,6 +1057,24 @@ public class GuiController implements Initializable {
         // Reset game state
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
+    }
+    
+    private void showSettings() {
+        // Hide main menu
+        mainMenuPanel.setVisible(false);
+        
+        // Show settings panel
+        settingsPanel.setVisible(true);
+        settingsPanel.toFront();
+    }
+    
+    private void returnToMainMenuFromSettings() {
+        // Hide settings panel
+        settingsPanel.setVisible(false);
+        
+        // Show main menu
+        mainMenuPanel.setVisible(true);
+        mainMenuPanel.toFront();
     }
     
     // Return to main menu from pause
