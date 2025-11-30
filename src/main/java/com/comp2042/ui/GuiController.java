@@ -16,7 +16,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.effect.Reflection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -31,6 +30,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -105,11 +105,15 @@ public class GuiController implements Initializable {
     
     // Sound effects
     private MediaPlayer backgroundMusic;
+    
+    // Video background
+    private MediaPlayer videoPlayer;
+    private MediaView videoView;
 
     /**
      * Initializes scaling for the game window to allow resizing.
-     * This method sets up listeners that automatically scale all game elements
-     * when the window is resized.
+     * This method sets up the video background and listeners that automatically 
+     * scale all game elements (including the video) when the window is resized.
      * 
      * @param scene the game scene to apply scaling to
      */
@@ -125,6 +129,9 @@ public class GuiController implements Initializable {
         root.setPrefWidth(BASE_WIDTH);
         root.setPrefHeight(BASE_HEIGHT);
         
+        // Initialize video background before other elements
+        initializeVideoBackground(root);
+        
         // Create a scale transform for the root pane that scales from top-left (0,0)
         javafx.scene.transform.Scale scale = new javafx.scene.transform.Scale();
         scale.setPivotX(0);
@@ -139,6 +146,12 @@ public class GuiController implements Initializable {
             // Apply independent X and Y scaling to fill the window completely
             scale.setX(scaleX);
             scale.setY(scaleY);
+            
+            // Update video dimensions to match scaled window
+            if (videoView != null) {
+                videoView.setFitWidth(BASE_WIDTH);
+                videoView.setFitHeight(BASE_HEIGHT);
+            }
         };
         
         scene.widthProperty().addListener(sizeListener);
@@ -237,8 +250,9 @@ public class GuiController implements Initializable {
             if (gamePanel.getParent() != null && gamePanel.getParent().getParent() != null) {
                 javafx.scene.layout.Pane parentPane = (javafx.scene.layout.Pane) gamePanel.getParent().getParent();
                 
-                // Set initial background to default dark (main menu will show)
-                parentPane.setStyle("-fx-background-color: #1e1e1e;");
+                // Set initial background to transparent (video will show through)
+                // If no video is loaded, it will fall back to scene background color
+                parentPane.setStyle("-fx-background-color: transparent;");
                 
                 // Add pause menu (centered on screen: 400x500, menu is 300x230)
                 pauseMenuPanel.setLayoutX(50);
@@ -253,11 +267,6 @@ public class GuiController implements Initializable {
                 mainMenuPanel.toFront();
             }
         });
-
-        final Reflection reflection = new Reflection();
-        reflection.setFraction(0.8);
-        reflection.setTopOpacity(0.9);
-        reflection.setTopOffset(-12);
         
         // Initialize sound effects
         initializeSounds();
@@ -273,6 +282,41 @@ public class GuiController implements Initializable {
             backgroundMusic.setVolume(0.15); // 15% volume for softer background music
         } catch (Exception e) {
             System.out.println("Background music not found. Add 'background_music.mp3' to resources folder.");
+        }
+    }
+    
+    // Initializes the video background for the game
+    // The video will loop continuously and fill the entire window
+    private void initializeVideoBackground(javafx.scene.layout.Pane root) {
+        try {
+            // Load background video from resources
+            // Supported formats: mp4, m4v, m4a, fxm, flv, wav, aiff
+            String videoPath = getClass().getClassLoader().getResource("background_video.mp4").toExternalForm();
+            Media videoMedia = new Media(videoPath);
+            
+            // Create media player for video
+            videoPlayer = new MediaPlayer(videoMedia);
+            videoPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop video infinitely
+            videoPlayer.setMute(true); // Mute video audio (we have separate background music)
+            videoPlayer.setRate(0.5); // Slow down playback (0.5 = half speed, 1.0 = normal, 2.0 = double speed)
+            videoPlayer.setAutoPlay(true); // Start playing automatically
+            
+            // Create MediaView to display the video
+            videoView = new MediaView(videoPlayer);
+            videoView.setFitWidth(BASE_WIDTH);
+            videoView.setFitHeight(BASE_HEIGHT);
+            videoView.setPreserveRatio(false); // Stretch to fill window
+            videoView.setSmooth(true); // Enable smooth scaling
+            
+            // Add video view as the first child (bottom layer) of root pane
+            root.getChildren().add(0, videoView);
+            videoView.toBack(); // Ensure video stays in the background
+            
+            System.out.println("Video background loaded successfully!");
+        } catch (Exception e) {
+            System.out.println("Background video not found. Add 'background_video.mp4' to resources folder.");
+            System.out.println("The game will use the default gradient background instead.");
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -935,11 +979,11 @@ public class GuiController implements Initializable {
             setGameElementsVisible(false);
         }
         
-        // Set background to default dark (no gradient) - both scene and root pane
+        // Set background to transparent to show video - both scene and root pane
         if (scene != null) {
-            scene.setFill(javafx.scene.paint.Color.rgb(30, 30, 30));
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
         }
-        setRootPaneStyle("-fx-background-color: #1e1e1e;");
+        setRootPaneStyle("-fx-background-color: transparent;");
         
         // Show main menu
         mainMenuPanel.setVisible(true);
@@ -960,12 +1004,11 @@ public class GuiController implements Initializable {
         // Hide main menu
         mainMenuPanel.setVisible(false);
         
-        // Restore gradient background when starting game - both scene and root pane
-        // Scene gets solid dark background, root pane gets gradient
+        // Set transparent background to show video - both scene and root pane
         if (scene != null) {
-            scene.setFill(javafx.scene.paint.Color.rgb(8, 25, 24)); // Dark color matching gradient bottom
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
         }
-        setRootPaneStyle("-fx-background-color: linear-gradient(to bottom, #2d6a65 0%, #081918 100%);");
+        setRootPaneStyle("-fx-background-color: transparent;");
         
         // Initialize game if first time
         if (!isGameInitialized) {

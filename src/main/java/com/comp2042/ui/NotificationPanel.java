@@ -6,7 +6,6 @@ import javafx.animation.TranslateTransition;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.effect.Effect;
 import javafx.scene.effect.Glow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
@@ -28,8 +27,7 @@ public class NotificationPanel extends BorderPane {
         setMinWidth(220);
         final Label score = new Label(text);
         score.getStyleClass().add("bonusStyle");
-        final Effect glow = new Glow(0.6);
-        score.setEffect(glow);
+        score.setEffect(new Glow(0.6));
         score.setTextFill(Color.WHITE);
         setCenter(score);
 
