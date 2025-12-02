@@ -205,4 +205,27 @@ class MatrixOperationsTest {
         copy[1][1] = 99;
         assertEquals(5, original[1][1]); // Original unchanged
     }
+
+    @Test
+    void testMergePreservesBoard() {
+        int[][] board = new int[10][10];
+        board[3][3] = 5;
+        int[][] brick = {{1, 1}, {1, 1}};
+        
+        int[][] result = MatrixOperations.merge(board, brick, 5, 5);
+        
+        // Original board unchanged
+        assertEquals(5, board[3][3]);
+        // Result has both
+        assertEquals(5, result[3][3]);
+        assertEquals(1, result[5][5]);
+    }
+
+    @Test
+    void testEmptyRowNotCleared() {
+        int[][] board = new int[10][10];
+        
+        ClearRow result = MatrixOperations.checkRemoving(board);
+        assertEquals(0, result.getLinesRemoved());
+    }
 }

@@ -328,4 +328,23 @@ class SimpleBoardInputTest {
         assertTrue(movedRight);
         assertTrue(movedDown);
     }
+
+    @Test
+    void testGhostBrickExists() {
+        int ghostY = board.getViewData().getGhostYPosition();
+        assertTrue(ghostY >= 0);
+    }
+
+    @Test
+    void testBoardDimensions() {
+        int[][] matrix = board.getBoardMatrix();
+        assertEquals(25, matrix.length);
+        assertEquals(10, matrix[0].length);
+    }
+
+    @Test
+    void testNewBrickSpawns() {
+        board.createNewBrick();
+        assertNotNull(board.getViewData().getBrickData());
+    }
 }

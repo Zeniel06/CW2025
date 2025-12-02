@@ -110,4 +110,22 @@ class ScoreTest {
         assertEquals(5, score.linesProperty().get());
         assertEquals(2, score.levelProperty().get()); // (5/3) + 1 = 2
     }
+
+    @Test
+    void testLargeScore() {
+        score.add(999999);
+        assertEquals(999999, score.scoreProperty().get());
+    }
+
+    @Test
+    void testMultipleLevels() {
+        score.addLines(12); // Should reach level 5
+        assertEquals(5, score.levelProperty().get());
+    }
+
+    @Test
+    void testZeroAddition() {
+        score.add(0);
+        assertEquals(0, score.scoreProperty().get());
+    }
 }
