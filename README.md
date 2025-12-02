@@ -141,11 +141,16 @@
 - The game board dims and active bricks are hidden when game over occurs, providing clear visual feedback
 - Players can press **"N"** to restart immediately
 
-#### **11. Settings Menu**
+#### **11. Settings Menu with Customizable Key Bindings**
 - Accessible from the main menu via the **Settings** button
 - **Volume Control**: Real-time adjustment of background music volume using a slider (0-100%)
-- **Game Controls Display**: Comprehensive list of all keyboard controls and their functions
-- Controls shown include both arrow keys and WASD alternatives for movement and rotation
+- **Customizable Key Bindings**: Interactive system allowing players to rebind all game controls
+  - Click any key button to enter rebinding mode
+  - Press the desired key to assign it to that action
+  - Automatic conflict resolution prevents duplicate key assignments
+  - Visual feedback during rebinding with orange highlight
+  - Bindings are automatically saved and persist between game sessions
+- **Reset to Defaults**: Button to restore all key bindings to their original values
 - **Back Button**: Returns to the main menu
 - Settings panel features a semi-transparent dark background with blue borders matching the game aesthetic
 
@@ -153,61 +158,80 @@
 
 ##  Controls
 
+**Note:** All controls are customizable through the Settings menu. Default bindings are:
+
 | Key | Action |
 |-----|--------|
-| **←** or **A** | Move left |
-| **→** or **D** | Move right |
-| **↓** or **S** | Move down (soft drop) |
-| **↑** or **W** | Rotate piece |
+| **←** | Move left |
+| **→** | Move right |
+| **↓** | Move down (soft drop) |
+| **↑** | Rotate piece |
 | **SPACE** | Hard drop (instant drop) |
 | **SHIFT** | Hold current piece |
 | **ESCAPE** | Pause/Resume |
-| **"N" Key** | Reset/Restart Game |
+| **N** | Reset/Restart Game |
+
+To change any control, go to **Settings** → click the key button → press your desired key.
 
 ---
 
 ##  New Java Classes Added
 
-### 1. MainMenuPanel
+### 1. GameAction (Enum)
+**Path:** `src/main/java/com/comp2042/util/GameAction.java`
+- Enumeration defining all customizable game actions
+- Includes MOVE_LEFT, MOVE_RIGHT, ROTATE, SOFT_DROP, HARD_DROP, HOLD_PIECE, PAUSE, and NEW_GAME
+- Each action has a display name for UI presentation
+- Serves as the foundation for the key binding system
+
+### 2. KeyBindingManager
+**Path:** `src/main/java/com/comp2042/util/KeyBindingManager.java`
+- Singleton class managing all key bindings for game actions
+- Provides functionality to get, set, and persist key bindings using Java Preferences API
+- Implements versioning system to automatically reset outdated preferences when defaults change
+- Features automatic conflict resolution to prevent duplicate key assignments
+- Supports binding/unbinding keys at runtime with immediate persistence
+- Includes utility method for converting key codes to user-friendly display strings (e.g., arrow symbols)
+- Ensures consistent key bindings across all game components
+
+### 3. MainMenuPanel
 **Path:** `src/main/java/com/comp2042/ui/MainMenuPanel.java`
 - Introduces a dedicated JavaFX BorderPane for the game's startup screen
 - Displays the branded "Tetris" header with "Start Game" and "Settings" buttons
 - Provides access to both game initialization and settings configuration
 - Gives players a polished entry point with complete menu navigation
 
-### 2. PauseMenuPanel
+### 4. PauseMenuPanel
 **Path:** `src/main/java/com/comp2042/ui/PauseMenuPanel.java`
 - Adds a pop-up pause menu when the escape key is pressed
 - Uses JavaFX BorderPane that dims the background
 - Shows "Resume" and "Main Menu" buttons
 
-### 3. SettingsPanel
+### 5. SettingsPanel
 **Path:** `src/main/java/com/comp2042/ui/SettingsPanel.java`
 - Provides a comprehensive settings interface accessible from the main menu
 - Includes a volume slider (0-100%) for real-time adjustment of background music volume
-- Displays all available game controls with their key bindings (arrow keys and WASD alternatives)
-- Features a "Back" button to return to the main menu
+- Features interactive key binding customization system:
+  - Displays all game actions with their currently assigned keys
+  - Click-to-rebind functionality for easy control customization
+  - Visual feedback with hover effects and rebinding state indicators
+  - Automatic UI refresh when bindings are changed
+- "Reset to Defaults" button to restore original key bindings
+- "Back" button to return to the main menu
 - Styled with a semi-transparent dark background and blue borders for visual consistency
+- Integrates with KeyBindingManager to persist user preferences
 
 ---
 
 ##  Modified Java Classes
 
-### 1. GameController
-**Location:** `src/main/java/com/comp2042/controller/GameController.java`
-- The game board initialization is delayed until the user presses the "Start Game" button from the main menu panel
-- Builds the UI for the score, level, and line bindings that creates the enhanced HUD
-- Centralises the brick-lock and row-clearing
-- Sends game-over states back to view and gives additional points for hard-drops
-- These improvements help maintain the flow of the game while supporting the multitude of mechanics implemented
-
-### 2. Board
+### 1. Board
 **Location:** `src/main/java/com/comp2042/model/Board.java`
 - Introduces methods for hard-drop support, danger-line detection, hold piece swapping and retrieving held bricks
 - Makes the game much more intuitive and interactive
 - Allows GameController and UI to call these features directly without any extra work
 
-### 3. SimpleBoard
+### 2. SimpleBoard
 **Location:** `src/main/java/com/comp2042/model/SimpleBoard.java`
 - Movement is refactored into a reusable helper which calculates ghost landing rows
 - Implements hard-drops and maintains the held piece state with the "one hold per piece" rule
@@ -215,9 +239,11 @@
 - Packages the ghost and hold data into ViewData to ensure lightweight code around the board state
 - Serves as the foundation for all new gameplay features while preventing collisions
 
-### 4. GuiController
+### 3. GuiController
 **Location:** `src/main/java/com/comp2042/ui/GuiController.java`
-- Expanded to handle the new inputs used for controls (space for hard drop, shift for hold, escape for pause)
+- Integrates KeyBindingManager for dynamic key input handling based on user preferences
+- Input event handler queries KeyBindingManager to map key presses to game actions in real-time
+- Supports customizable controls for all game actions (movement, rotation, hold, hard drop, pause, new game)
 - Lazy-loads the game and manages the main menu, pause menu, and settings menu
 - Renders the ghost-blocks, hold preview, and next 4 bricks preview in a single unified panel
 - Shows the live statistic scores
@@ -234,14 +260,27 @@
 - Manages scene and root pane with transparent backgrounds to allow video to show through
 - Handles navigation between main menu and settings panel with appropriate show/hide logic
 
-### 5. GameOverPanel
+### 4. GameOverPanel
 **Location:** `src/main/java/com/comp2042/ui/GameOverPanel.java`
 - Displays a centered, full-screen overlay (400x500px) when the game ends
 - Shows "GAME OVER" text in white Arial font (56px bold)
 - Displays the final score in gold digital font (32px) for visual emphasis
-- Shows restart instructions ("Press 'N' to Restart") in gray below the score
-- Includes `setScore(int)` method to dynamically update the displayed score
+- **Dynamic restart instructions**: Automatically displays the correct key binding for NEW_GAME action
+  - Queries KeyBindingManager to get current binding at runtime
+  - Example: "Press 'N' to Restart" or "Press 'P' to Restart" based on user's settings
+  - Updates every time the game over screen is shown to reflect any binding changes
+- Includes `setScore(int)` method to dynamically update the displayed score and refresh key binding text
 - Uses a semi-transparent dark background (85% opacity) for text visibility
+- Integrates with KeyBindingManager for consistent control display
+
+### 5. GameController
+**Location:** `src/main/java/com/comp2042/controller/GameController.java`
+- No changes required for key binding system - remains decoupled from input handling
+- The game board initialization is delayed until the user presses the "Start Game" button from the main menu panel
+- Builds the UI for the score, level, and line bindings that creates the enhanced HUD
+- Centralises the brick-lock and row-clearing
+- Sends game-over states back to view and gives additional points for hard-drops
+- These improvements help maintain the flow of the game while supporting the multitude of mechanics implemented
 
 ### 6. Main
 **Location:** `src/main/java/com/comp2042/ui/Main.java`
@@ -340,3 +379,17 @@
 **Solution:**
 - Made methods in `MatrixOperations.java` to make full copies of the grids before testing any moves
 - This way, checking to see if a move is possible doesn't change how the bricks look or break the game
+
+### 6. Key Binding System Integration
+**Problem:**
+- Initial implementation had hardcoded key checks scattered throughout GuiController
+- Adding customizable controls required refactoring input handling to be dynamic
+- Needed to ensure game over screen and UI elements always showed the correct keys after user changes bindings
+
+**Solution:**
+- Created KeyBindingManager singleton to centralize all key binding logic using Java Preferences API
+- Implemented versioning system to handle default binding changes across application updates
+- Refactored GuiController's input handler to query KeyBindingManager for action lookup instead of hardcoded key checks
+- Added dynamic text generation in GameOverPanel that queries current bindings when displayed
+- Used Java enums (GameAction) to ensure type-safe action references throughout the codebase
+- Eliminated code duplication by using single-source-of-truth pattern for default key mappings

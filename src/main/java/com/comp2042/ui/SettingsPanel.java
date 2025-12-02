@@ -1,5 +1,7 @@
 package com.comp2042.ui;
 
+import com.comp2042.util.GameAction;
+import com.comp2042.util.KeyBindingManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -8,33 +10,65 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.paint.Color;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 /**
- * UI panel for game settings.
- * Provides a comprehensive settings interface where players can adjust the background music volume
- * using a slider control and view all available game controls with their key bindings.
- * The panel includes a semi-transparent dark background with a blue border to match the game's aesthetic.
+ * Settings panel for adjusting game volume and customizing key bindings.
+ * Players can click any key button to rebind controls and reset to defaults.
  */
 public class SettingsPanel extends BorderPane {
 
     private static final String SECTION_LABEL_STYLE = "-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;";
     
+    // Button style constants to avoid duplication
+    private static final String KEY_BUTTON_NORMAL_STYLE = 
+        "-fx-background-color: rgba(50, 70, 100, 0.8);" +
+        "-fx-text-fill: white;" +
+        "-fx-font-size: 11px;" +
+        "-fx-font-weight: bold;" +
+        "-fx-padding: 5 15 5 15;" +
+        "-fx-border-color: rgba(100, 150, 200, 0.6);" +
+        "-fx-border-width: 1;" +
+        "-fx-cursor: hand;";
+    
+    private static final String KEY_BUTTON_HOVER_STYLE = 
+        "-fx-background-color: rgba(70, 90, 120, 0.9);" +
+        "-fx-text-fill: white;" +
+        "-fx-font-size: 11px;" +
+        "-fx-font-weight: bold;" +
+        "-fx-padding: 5 15 5 15;" +
+        "-fx-border-color: rgba(120, 170, 220, 0.8);" +
+        "-fx-border-width: 1;" +
+        "-fx-cursor: hand;";
+    
+    private static final String KEY_BUTTON_REBINDING_STYLE = 
+        "-fx-background-color: rgba(200, 100, 50, 0.9);" +
+        "-fx-text-fill: white;" +
+        "-fx-font-size: 11px;" +
+        "-fx-font-weight: bold;" +
+        "-fx-padding: 5 15 5 15;" +
+        "-fx-border-color: rgba(255, 150, 100, 0.8);" +
+        "-fx-border-width: 2;" +
+        "-fx-cursor: hand;";
+    
     private Slider volumeSlider;
     private Button backButton;
+    private KeyBindingManager keyBindingManager;
+    private GameAction currentlyRebinding = null;
+    private Button currentRebindButton = null;
 
     /**
-     * Constructs a new SettingsPanel with volume control and controls display.
-     * The panel includes:
-     * - A volume slider (0-100%) for adjusting background music volume
-     * - A comprehensive display of all game controls with key bindings
-     * - A back button to return to the main menu
-     * The panel is styled with a semi-transparent background and positioned centrally.
+     * Constructs a new SettingsPanel with volume control and key binding customization.
      */
     public SettingsPanel() {
+        keyBindingManager = KeyBindingManager.getInstance();
+        
         // Create the title label
         final Label titleLabel = new Label("SETTINGS");
         titleLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;");
@@ -53,74 +87,195 @@ public class SettingsPanel extends BorderPane {
         volumeSlider.setPrefWidth(250);
         volumeSlider.setStyle("-fx-control-inner-background: rgba(100, 100, 100, 0.8);");
         
-        VBox volumeBox = new VBox(8);
+        VBox volumeBox = new VBox(6);
         volumeBox.setAlignment(Pos.CENTER);
         volumeBox.getChildren().addAll(volumeLabel, volumeSlider);
         
         // Control display
-        Label controlsLabel = new Label("CONTROLS");
+        Label controlsLabel = new Label("KEY BINDINGS");
         controlsLabel.setStyle(SECTION_LABEL_STYLE);
         
-        // Create controls text display
-        VBox controlsBox = new VBox(5);
+        // Create controls box with customizable key bindings
+        VBox controlsBox = new VBox(4);
         controlsBox.setAlignment(Pos.CENTER_LEFT);
-        controlsBox.setPadding(new Insets(10));
+        controlsBox.setPadding(new Insets(8));
         controlsBox.setStyle("-fx-background-color: rgba(30, 30, 30, 0.8); -fx-border-color: rgba(100, 150, 200, 0.6); -fx-border-width: 1;");
         
-        // Add control descriptions
-        addControlLine(controlsBox, "MOVE LEFT:", "← / A");
-        addControlLine(controlsBox, "MOVE RIGHT:", "→ / D");
-        addControlLine(controlsBox, "ROTATE:", "↑ / W");
-        addControlLine(controlsBox, "SOFT DROP:", "↓ / S");
-        addControlLine(controlsBox, "HARD DROP:", "SPACE");
-        addControlLine(controlsBox, "HOLD PIECE:", "SHIFT");
-        addControlLine(controlsBox, "PAUSE:", "ESC");
-        addControlLine(controlsBox, "NEW GAME:", "N");
+        // Add interactive control bindings for each action
+        for (GameAction action : GameAction.values()) {
+            addKeyBindingControl(controlsBox, action);
+        }
         
-        VBox controlsSection = new VBox(8);
+        VBox controlsSection = new VBox(6);
         controlsSection.setAlignment(Pos.CENTER);
         controlsSection.getChildren().addAll(controlsLabel, controlsBox);
+        
+        // Buttons row
+        HBox buttonsBox = new HBox(10);
+        buttonsBox.setAlignment(Pos.CENTER);
+        
+        // Reset to defaults button
+        Button resetButton = new Button("RESET");
+        resetButton.getStyleClass().add("gameModeButton");
+        resetButton.setPrefWidth(150);
+        resetButton.setMinWidth(150);
+        resetButton.setMaxWidth(150);
+        resetButton.setPrefHeight(35);
+        resetButton.setOnAction(e -> resetKeybindsToDefaults());
         
         // back button
         backButton = new Button("BACK");
         backButton.getStyleClass().add("gameModeButton");
         backButton.setPrefWidth(150);
-        backButton.setPrefHeight(40);
+        backButton.setPrefHeight(35);
+        
+        buttonsBox.getChildren().addAll(resetButton, backButton);
         
         // Create main content container
-        VBox contentBox = new VBox(20);
+        VBox contentBox = new VBox(10);
         contentBox.setAlignment(Pos.CENTER);
-        contentBox.setPadding(new Insets(20));
-        contentBox.getChildren().addAll(titleLabel, volumeBox, controlsSection, backButton);
+        contentBox.setPadding(new Insets(12));
+        contentBox.getChildren().addAll(titleLabel, volumeBox, controlsSection, buttonsBox);
         
         // Panel styling
         this.setStyle("-fx-background-color: rgba(0, 0, 0, 0.9); -fx-border-color: rgba(100, 150, 200, 0.8); -fx-border-width: 3;");
-        this.setPrefSize(400, 500);
+        this.setPrefSize(420, 520);
         setCenter(contentBox);
-    }
-
-    private void addControlLine(VBox container, String action, String key) {
-        HBox line = new HBox(10);
-        line.setAlignment(Pos.CENTER_LEFT);
         
-        Text actionText = new Text(action);
-        actionText.setFill(Color.LIGHTBLUE);
-        actionText.setFont(Font.font(null, FontWeight.BOLD, 12));
-        
-        Text keyText = new Text(key);
-        keyText.setFill(Color.WHITE);
-        keyText.setFont(Font.font(12));
-        
-        line.getChildren().addAll(actionText, keyText);
-        container.getChildren().add(line);
+        // Setup key event handler for rebinding
+        this.setOnKeyPressed(this::handleKeyPress);
+        this.setFocusTraversable(true);
     }
 
     /**
-     * Gets the volume slider control.
-     * The slider can be bound to a media player's volume property to enable
-     * real-time volume adjustment. Values range from 0 (muted) to 100 (maximum volume).
+     * Adds an interactive key binding control for a game action.
+     * Users can click the button to rebind the key.
+     */
+    private void addKeyBindingControl(VBox container, GameAction action) {
+        HBox line = new HBox(10);
+        line.setAlignment(Pos.CENTER_LEFT);
+        
+        // Action label
+        Text actionText = new Text(action.getDisplayName().toUpperCase() + ":");
+        actionText.setFill(Color.LIGHTBLUE);
+        actionText.setFont(Font.font(null, FontWeight.BOLD, 11));
+        actionText.setWrappingWidth(110);
+        
+        // Spacer to push button to the right
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+        
+        // Key button - shows current binding and allows rebinding
+        Button keyButton = new Button(KeyBindingManager.getKeyDisplayName(keyBindingManager.getPrimaryBinding(action)));
+        keyButton.setStyle(KEY_BUTTON_NORMAL_STYLE);
+        keyButton.setPrefWidth(100);
+        
+        // Handle button click to start rebinding
+        keyButton.setOnAction(e -> startRebinding(action, keyButton));
+        
+        // Hover effect
+        keyButton.setOnMouseEntered(e -> keyButton.setStyle(KEY_BUTTON_HOVER_STYLE));
+        keyButton.setOnMouseExited(e -> {
+            if (currentRebindButton != keyButton) {
+                keyButton.setStyle(KEY_BUTTON_NORMAL_STYLE);
+            }
+        });
+        
+        line.getChildren().addAll(actionText, spacer, keyButton);
+        container.getChildren().add(line);
+    }
+    
+    /**
+     * Starts the rebinding process for a game action.
+     */
+    private void startRebinding(GameAction action, Button button) {
+        // Cancel any previous rebinding
+        if (currentRebindButton != null) {
+            KeyCode previousKey = keyBindingManager.getPrimaryBinding(currentlyRebinding);
+            currentRebindButton.setText(KeyBindingManager.getKeyDisplayName(previousKey));
+            currentRebindButton.setStyle(KEY_BUTTON_NORMAL_STYLE);
+        }
+        
+        // Set up new rebinding
+        currentlyRebinding = action;
+        currentRebindButton = button;
+        button.setText("Press key...");
+        button.setStyle(KEY_BUTTON_REBINDING_STYLE);
+        
+        // Request focus to receive key events
+        this.requestFocus();
+    }
+    
+    /**
+     * Handles key press events during rebinding.
+     */
+    private void handleKeyPress(KeyEvent event) {
+        if (currentlyRebinding != null && currentRebindButton != null) {
+            KeyCode newKey = event.getCode();
+            
+            // Ignore modifier keys alone
+            if (newKey == KeyCode.SHIFT || newKey == KeyCode.CONTROL || 
+                newKey == KeyCode.ALT || newKey == KeyCode.META) {
+                return;
+            }
+            
+            // Set the new binding
+            keyBindingManager.setBinding(currentlyRebinding, newKey);
+            
+            // Update button text and style
+            currentRebindButton.setText(KeyBindingManager.getKeyDisplayName(newKey));
+            currentRebindButton.setStyle(KEY_BUTTON_NORMAL_STYLE);
+            
+            // Clear rebinding state
+            currentlyRebinding = null;
+            currentRebindButton = null;
+            
+            event.consume();
+        }
+    }
+    
+    /**
+     * Resets all key bindings to their default values and updates the UI.
+     */
+    private void resetKeybindsToDefaults() {
+        keyBindingManager.resetToDefaults();
+        
+        // Refresh all buttons - rebuild the controls section
+        // Find the controls box and rebuild it
+        VBox contentBox = (VBox) this.getCenter();
+        VBox controlsSection = null;
+        for (javafx.scene.Node node : contentBox.getChildren()) {
+            if (node instanceof VBox) {
+                VBox vbox = (VBox) node;
+                for (javafx.scene.Node child : vbox.getChildren()) {
+                    if (child instanceof Label && ((Label) child).getText().equals("KEY BINDINGS")) {
+                        controlsSection = vbox;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (controlsSection != null) {
+            // Find the controls box (second child after label)
+            VBox controlsBox = (VBox) controlsSection.getChildren().get(1);
+            controlsBox.getChildren().clear();
+            
+            // Re-add all key binding controls with default values
+            for (GameAction action : GameAction.values()) {
+                addKeyBindingControl(controlsBox, action);
+            }
+        }
+        
+        // Clear any active rebinding
+        currentlyRebinding = null;
+        currentRebindButton = null;
+    }
+
+    /**
+     * Gets the volume slider.
      * 
-     * @return the volume slider control
+     * @return the volume slider
      */
     public Slider getVolumeSlider() {
         return volumeSlider;
@@ -128,9 +283,8 @@ public class SettingsPanel extends BorderPane {
 
     /**
      * Gets the back button.
-     * This button should be configured to navigate back to the main menu when clicked.
      * 
-     * @return the button that returns to the main menu
+     * @return the back button
      */
     public Button getBackButton() {
         return backButton;

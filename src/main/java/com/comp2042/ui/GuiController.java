@@ -6,6 +6,8 @@ import com.comp2042.event.EventSource;
 import com.comp2042.event.EventType;
 import com.comp2042.event.InputEventListener;
 import com.comp2042.event.MoveEvent;
+import com.comp2042.util.GameAction;
+import com.comp2042.util.KeyBindingManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
@@ -75,6 +77,8 @@ public class GuiController implements Initializable {
     private Rectangle[][] rectangles;
     
     private boolean isGameInitialized = false;
+    
+    private KeyBindingManager keyBindingManager;
     
     // Scaling-related fields
     private javafx.scene.layout.Pane rootPane;
@@ -175,6 +179,9 @@ public class GuiController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
         
+        // Initialize key binding manager
+        keyBindingManager = KeyBindingManager.getInstance();
+        
         // Hide all game elements on startup (they'll be shown when game starts)
         gamePanel.setVisible(false);
         gamePanel.setManaged(false); // Also remove from layout calculations
@@ -193,41 +200,53 @@ public class GuiController implements Initializable {
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
+                KeyCode keyCode = keyEvent.getCode();
+                GameAction action = keyBindingManager.getAction(keyCode);
+                
+                if (action == null) {
+                    return; // Key not bound to any action
+                }
+                
+                // Handle game actions during active gameplay
                 if (isGameInitialized && isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
-                    if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
-                        refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
-                        keyEvent.consume();
-                    }
-                    if (keyEvent.getCode() == KeyCode.RIGHT || keyEvent.getCode() == KeyCode.D) {
-                        refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
-                        keyEvent.consume();
-                    }
-                    if (keyEvent.getCode() == KeyCode.UP || keyEvent.getCode() == KeyCode.W) {
-                        refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
-                        keyEvent.consume();
-                    }
-                    if (keyEvent.getCode() == KeyCode.DOWN || keyEvent.getCode() == KeyCode.S) {
-                        moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
-                        keyEvent.consume();
-                    }
-                    // Space bar triggers hard drop instantly 
-                    if (keyEvent.getCode() == KeyCode.SPACE) {
-                        hardDrop(new MoveEvent(EventType.HARD_DROP, EventSource.USER));
-                        keyEvent.consume();
-                    }
-                    // Shift key triggers hold/swap piece (standard Tetris hold mechanic)
-                    if (keyEvent.getCode() == KeyCode.SHIFT) {
-                        holdPiece(new MoveEvent(EventType.HOLD, EventSource.USER));
-                        keyEvent.consume();
+                    switch (action) {
+                        case MOVE_LEFT:
+                            refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
+                            keyEvent.consume();
+                            break;
+                        case MOVE_RIGHT:
+                            refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
+                            keyEvent.consume();
+                            break;
+                        case ROTATE:
+                            refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
+                            keyEvent.consume();
+                            break;
+                        case SOFT_DROP:
+                            moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
+                            keyEvent.consume();
+                            break;
+                        case HARD_DROP:
+                            hardDrop(new MoveEvent(EventType.HARD_DROP, EventSource.USER));
+                            keyEvent.consume();
+                            break;
+                        case HOLD_PIECE:
+                            holdPiece(new MoveEvent(EventType.HOLD, EventSource.USER));
+                            keyEvent.consume();
+                            break;
                     }
                 }
-                // Escape key toggles pause menu (only when game is initialized)
-                if (keyEvent.getCode() == KeyCode.ESCAPE && isGameInitialized) {
+                
+                // Handle pause action (available when game is initialized)
+                if (action == GameAction.PAUSE && isGameInitialized) {
                     togglePause();
                     keyEvent.consume();
                 }
-                if (keyEvent.getCode() == KeyCode.N && isGameInitialized) {
+                
+                // Handle new game action (available when game is initialized, even during game over)
+                if (action == GameAction.NEW_GAME && isGameInitialized) {
                     newGame(null);
+                    keyEvent.consume();
                 }
             }
         });
@@ -280,9 +299,9 @@ public class GuiController implements Initializable {
                 parentPane.getChildren().add(mainMenuPanel);
                 mainMenuPanel.toFront();
                 
-                // Add settings menu (centered on screen: 500x540, menu is 400x500)
-                settingsPanel.setLayoutX(50);   // (500 - 400) / 2 = 50
-                settingsPanel.setLayoutY(20);   // (540 - 500) / 2 = 20
+                // Add settings menu (centered on screen: 500x540, menu is 420x520)
+                settingsPanel.setLayoutX(40);   // (500 - 420) / 2 = 40
+                settingsPanel.setLayoutY(10);   // (540 - 520) / 2 = 10
                 parentPane.getChildren().add(settingsPanel);
                 settingsPanel.toFront();
             }
